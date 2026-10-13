@@ -1,0 +1,718 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🚗 Báo Cáo Kiểm Thử Đồng Bộ Màn Hình Home Android Auto & Mobile</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  tr.row-fail td {
+    background: #fff5f5;
+  }
+  tr.row-fail:hover td {
+    background: #fee2e2;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-fail {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 180px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .img-thumb-mobile {
+    max-width: 90px;
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          🚗 Báo Cáo Kiểm Thử Đồng Bộ Màn Hình Home Android Auto & Mobile
+          <span class="badge-app">Gofa Android Auto</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện test case đồng bộ màn hình Home trên Android Auto Head Unit & Điện thoại Android (Device ID: bffe438f) • File kịch bản: <code>test_home_sync.yaml</code> • <strong>Thời gian xuất: 13/10/2026 13:51:20</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 14 TESTCASES PASSED (100%)
+        </span>
+        <a href="report_master_summary.html" style="display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#334155; text-decoration:none; font-size:13px; font-weight:600; padding:8px 16px; border-radius:6px; border:1px solid #cbd5e1;">&larr; Quay lại Dashboard Tổng Hợp</a>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">14</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">14</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Bất thường</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ảnh Bằng Chứng HD</div>
+        <div class="value">40+ Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PHÂN HỆ 2: CHẠY ĐỒNG THỜI CÓ MỞ APP MOBILE & ĐỐI CHIẾU ĐỒNG BỘ -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phân hệ 2: Chạy Đồng Thời Android Auto & App Mobile (Đối Chiếu Đồng Bộ)</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">AA_Home_018 -> AA_Home_036</span>
+    </div>
+    <p class="section-desc">
+      Kiểm tra đồng thời cả 2 màn hình để đánh giá sự đồng bộ dữ liệu, giao diện, trạng thái âm thanh, tốc độ, kéo map & recenter và đặc biệt là tương tác 2 chiều (Zoom từ xe đồng bộ xuống điện thoại có kiểm tra biến thiên pixel toán học; Zoom & Đổi góc nhìn từ điện thoại đồng bộ lên xe hơi).
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 110px;">Mã TC</th>
+            <th style="width: 180px;">Tên Test Case</th>
+            <th style="width: 190px;">Các bước thực hiện</th>
+            <th style="width: 230px;">Kết quả kỳ vọng</th>
+            <th style="width: 210px; text-align:center;">Màn hình Android Auto</th>
+            <th style="width: 130px; text-align:center;">Màn hình Mobile App</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá sự đồng bộ giữa 2 thiết bị</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>AA_Home_018</strong></td>
+            <td><strong>Kiểm tra giao diện màn Home khi mới kết nối (Đồng thời cả AA và Mobile)</strong></td>
+            <td>1. Kết nối AA có dây<br>2. Mở app Gofa đồng thời trên cả xe và điện thoại</td>
+            <td>Cả 2 màn hình đồng bộ hiển thị màn Home: đầy đủ các nút Tìm kiếm, GoGPT, Âm thanh, +/-, Góp ý, Speedboard và Puck</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_018_home_moi_ket_noi_aa.png" data-filename="AA_Home_018_home_moi_ket_noi_aa.png" onerror="handleImgError(this)" alt="AA_Home_018 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_018_home_moi_ket_noi_mobile.png" data-filename="AA_Home_018_home_moi_ket_noi_mobile.png" onerror="handleImgError(this)" alt="AA_Home_018 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ hoàn hảo: Cả 2 màn hình cùng định vị tại vị trí puck xe, hiển thị đầy đủ icon và bảng tốc độ.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_019</strong></td>
+            <td><strong>Kiểm tra giao diện màn Home khi vừa kết nối và di chuyển (hoặc sau 10s không thao tác)</strong></td>
+            <td>Để yên không thao tác khoảng 10s hoặc di chuyển xe</td>
+            <td>Ẩn bớt các nút trên màn hình AA, chỉ giữ lại nút Tìm kiếm và GoGPT. Màn mobile giữ giao diện ổn định</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_019_an_bot_nut_sau_10s_aa.png" data-filename="AA_Home_019_an_bot_nut_sau_10s_aa.png" onerror="handleImgError(this)" alt="AA_Home_019 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_019_an_bot_nut_sau_10s_mobile.png" data-filename="AA_Home_019_an_bot_nut_sau_10s_mobile.png" onerror="handleImgError(this)" alt="AA_Home_019 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ tốt: Màn hình AA tự ẩn các nút điều khiển phụ sau 10s, màn mobile hiển thị trực quan không bị xáo trộn.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_020</strong></td>
+            <td><strong>Kiểm tra chạm vào màn hình Home</strong></td>
+            <td>1. Di chuyển xe hoặc sau khi ẩn nút<br>2. Chạm vào màn hình xe AA</td>
+            <td>Hiển thị lại đầy đủ các nút chức năng trên AA. Đồng bộ trạng thái mượt mà với điện thoại</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_020_cham_man_hinh_hien_lai_nut_aa.png" data-filename="AA_Home_020_cham_man_hinh_hien_lai_nut_aa.png" onerror="handleImgError(this)" alt="AA_Home_020 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_020_cham_man_hinh_hien_lai_nut_mobile.png" data-filename="AA_Home_020_cham_man_hinh_hien_lai_nut_mobile.png" onerror="handleImgError(this)" alt="AA_Home_020 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ tốt: Thao tác chạm trên xe tức thì kích hoạt hiển thị lại cụm phím điều khiển.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_021</strong></td>
+            <td><strong>Kiểm tra giao diện màn Home khi ở chế độ Dashboard (Chia đôi màn hình)</strong></td>
+            <td>Mở chế độ Dashboard trên xe (nhấn nút Dashboard góc dưới AA)</td>
+            <td>Màn Home của Gofa trên AA bị co lại nhưng vẫn hiển thị puck, ẩn nút. Mobile vẫn hiển thị bình thường, không crash</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_021_dashboard_split_view_aa.png" data-filename="AA_Home_021_dashboard_split_view_aa.png" onerror="handleImgError(this)" alt="AA_Home_021 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_021_dashboard_split_view_mobile.png" data-filename="AA_Home_021_dashboard_split_view_mobile.png" onerror="handleImgError(this)" alt="AA_Home_021 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ xuất sắc: Màn hình xe chia đôi nhưng ứng dụng mobile hoàn toàn ổn định, không bị crash.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_022</strong></td>
+            <td><strong>Kiểm tra chạm vào màn hình Home khi ở chế độ dashboard</strong></td>
+            <td>1. Đang ở chế độ Dashboard<br>2. Chạm vào màn Home của Gofa trên xe</td>
+            <td>Về lại full màn hình trên AA và hiển thị các nút theo logic mặc định. Màn hình Mobile giữ kết nối an toàn</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_022_cham_dashboard_ve_full_man_hinh_aa.png" data-filename="AA_Home_022_cham_dashboard_ve_full_man_hinh_aa.png" onerror="handleImgError(this)" alt="AA_Home_022 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_022_cham_dashboard_ve_full_man_hinh_mobile.png" data-filename="AA_Home_022_cham_dashboard_ve_full_man_hinh_mobile.png" onerror="handleImgError(this)" alt="AA_Home_022 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ tốt: AA trở lại toàn màn hình xe hơi trơn tru, đồng bộ trạng thái với mobile.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_023</strong></td>
+            <td><strong>Kiểm tra khi kéo bản đồ</strong></td>
+            <td>Kéo map trên AA di chuyển khỏi vị trí hiện tại</td>
+            <td>Trên AA nút Góp ý đổi thành nút Re-center. Kiểm tra đồng bộ tính độc lập an toàn với Mobile</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_023_keo_map_hien_recenter_aa.png" data-filename="AA_Home_023_keo_map_hien_recenter_aa.png" onerror="handleImgError(this)" alt="AA_Home_023 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_023_keo_map_hien_recenter_mobile.png" data-filename="AA_Home_023_keo_map_hien_recenter_mobile.png" onerror="handleImgError(this)" alt="AA_Home_023 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ độc lập: Kéo map trên AA đổi thành Re-center (tâm ngắm), không gây gián đoạn app mobile.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_024</strong></td>
+            <td><strong>Kiểm tra khi nhấn nút Re-center</strong></td>
+            <td>1. Map đã bị kéo lệch<br>2. Nhấn nút Re-center trên AA (94.0%, 77.5%)</td>
+            <td>Focus lại vào vị trí người dùng (puck) và giữ nguyên mức zoom. Nút Re-center đổi lại thành Góp ý</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_024_nhan_recenter_focus_xe_aa.png" data-filename="AA_Home_024_nhan_recenter_focus_xe_aa.png" onerror="handleImgError(this)" alt="AA_Home_024 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_024_nhan_recenter_focus_xe_mobile.png" data-filename="AA_Home_024_nhan_recenter_focus_xe_mobile.png" onerror="handleImgError(this)" alt="AA_Home_024 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ vị trí: Vị trí puck xe và hướng nhìn lập tức đồng bộ chuẩn xác trên cả 2 màn hình.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_025</strong></td>
+            <td><strong>Kiểm tra điều hướng các nút và đồng bộ trạng thái</strong></td>
+            <td>1. Chọn Tìm kiếm trên AA<br>2. Chọn Mic trên AA<br>3. Chọn Âm thanh (Mute/Unmute)<br>4. Chọn Góp ý (94.0%, 77.5%)</td>
+            <td>1. Màn Tìm kiếm trên AA chuẩn, Mobile ổn định<br>2. View mic hiển thị đúng<br>3. Trạng thái Mute/Unmute đồng bộ chuẩn xác<br>4. Màn Góp ý mở chuẩn xác</td>
+            <td><div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">1. Tìm kiếm</span>
+                <img class="img-thumb" src="AA_Home_025_dieu_huong_01_tim_kiem_aa.png" data-filename="AA_Home_025_dieu_huong_01_tim_kiem_aa.png" onerror="handleImgError(this)" alt="AA_Home_025 AA" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">2. Mic GoGPT</span>
+                <img class="img-thumb" src="AA_Home_025_dieu_huong_02_mic_gogpt_aa.png" data-filename="AA_Home_025_dieu_huong_02_mic_gogpt_aa.png" onerror="handleImgError(this)" alt="AA_Home_025 AA" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">3. Tắt âm thanh (Mute)</span>
+                <img class="img-thumb" src="AA_Home_025_dieu_huong_03_mute_aa.png" data-filename="AA_Home_025_dieu_huong_03_mute_aa.png" onerror="handleImgError(this)" alt="AA_Home_025 AA" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">4. Bật lại âm thanh</span>
+                <img class="img-thumb" src="AA_Home_025_dieu_huong_03_unmute_aa.png" data-filename="AA_Home_025_dieu_huong_03_unmute_aa.png" onerror="handleImgError(this)" alt="AA_Home_025 AA" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">5. Màn Góp ý</span>
+                <img class="img-thumb" src="AA_Home_025_dieu_huong_05_gop_y_aa.png" data-filename="AA_Home_025_dieu_huong_05_gop_y_aa.png" onerror="handleImgError(this)" alt="AA_Home_025 AA" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            </div></td>
+            <td><div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">1. Tìm kiếm</span>
+                <img class="img-thumb img-thumb-mobile" src="AA_Home_025_dieu_huong_01_tim_kiem_mobile.png" data-filename="AA_Home_025_dieu_huong_01_tim_kiem_mobile.png" onerror="handleImgError(this)" alt="AA_Home_025 Mobile" onclick="zoomImage(this.src)" style="max-width: 85px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">2. Mic GoGPT</span>
+                <img class="img-thumb img-thumb-mobile" src="AA_Home_025_dieu_huong_02_mic_gogpt_mobile.png" data-filename="AA_Home_025_dieu_huong_02_mic_gogpt_mobile.png" onerror="handleImgError(this)" alt="AA_Home_025 Mobile" onclick="zoomImage(this.src)" style="max-width: 85px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">3. Tắt âm thanh (Mute)</span>
+                <img class="img-thumb img-thumb-mobile" src="AA_Home_025_dieu_huong_03_mute_mobile.png" data-filename="AA_Home_025_dieu_huong_03_mute_mobile.png" onerror="handleImgError(this)" alt="AA_Home_025 Mobile" onclick="zoomImage(this.src)" style="max-width: 85px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">4. Bật lại âm thanh</span>
+                <img class="img-thumb img-thumb-mobile" src="AA_Home_025_dieu_huong_03_unmute_mobile.png" data-filename="AA_Home_025_dieu_huong_03_unmute_mobile.png" onerror="handleImgError(this)" alt="AA_Home_025 Mobile" onclick="zoomImage(this.src)" style="max-width: 85px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">5. Màn Góp ý</span>
+                <img class="img-thumb img-thumb-mobile" src="AA_Home_025_dieu_huong_05_gop_y_mobile.png" data-filename="AA_Home_025_dieu_huong_05_gop_y_mobile.png" onerror="handleImgError(this)" alt="AA_Home_025 Mobile" onclick="zoomImage(this.src)" style="max-width: 85px;">
+              </div>
+            </div></td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ điều hướng 100%: Mở Tìm kiếm, Mic, Mute/Unmute và mở màn hình Góp ý chuẩn xác trên xe hơi, mobile duy trì hiển thị ổn định.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_026</strong></td>
+            <td><strong>Kiểm tra khi di chuyển ở màn Home</strong></td>
+            <td>Di chuyển xe (mô phỏng lộ trình)</td>
+            <td>Hiển thị màn Home đồng bộ trên cả AA và Mobile: puck di chuyển mượt mà, hiển thị biển báo giao thông</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_026_di_chuyen_puck_bien_bao_aa.png" data-filename="AA_Home_026_di_chuyen_puck_bien_bao_aa.png" onerror="handleImgError(this)" alt="AA_Home_026 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_026_di_chuyen_puck_bien_bao_mobile.png" data-filename="AA_Home_026_di_chuyen_puck_bien_bao_mobile.png" onerror="handleImgError(this)" alt="AA_Home_026 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ bản đồ & vị trí: Cả 2 thiết bị cập nhật vị trí puck và hiển thị biển báo song song.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_027</strong></td>
+            <td><strong>Kiểm tra hiển thị speedboard mặc định</strong></td>
+            <td>Quan sát Speedboard trên cả 2 thiết bị</td>
+            <td>Hiển thị tốc độ mặc định 50 đồng bộ trên cả AA và Mobile</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_027_speedboard_mac_dinh_50_aa.png" data-filename="AA_Home_027_speedboard_mac_dinh_50_aa.png" onerror="handleImgError(this)" alt="AA_Home_027 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_027_speedboard_mac_dinh_50_mobile.png" data-filename="AA_Home_027_speedboard_mac_dinh_50_mobile.png" onerror="handleImgError(this)" alt="AA_Home_027 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ tốc độ: Biển số 50 hiển thị nhất quán trên cả màn hình xe và màn hình điện thoại.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_028</strong></td>
+            <td><strong>Kiểm tra hiển thị speedboard với tài khoản Pro</strong></td>
+            <td>Quan sát khi di chuyển</td>
+            <td>Khi di chuyển hiển thị theo đúng logic biển báo của app đồng bộ trên cả 2 màn hình</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_028_speedboard_tai_khoan_pro_aa.png" data-filename="AA_Home_028_speedboard_tai_khoan_pro_aa.png" onerror="handleImgError(this)" alt="AA_Home_028 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_028_speedboard_tai_khoan_pro_mobile.png" data-filename="AA_Home_028_speedboard_tai_khoan_pro_mobile.png" onerror="handleImgError(this)" alt="AA_Home_028 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ gói PRO: Logic biển báo và giới hạn tốc độ hiển thị đồng nhất.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_034</strong></td>
+            <td><strong>Kiểm tra thao tác zoom trên màn Home (Thao tác từ Android Auto -> Đồng bộ xuống Mobile)</strong></td>
+            <td>1. Chụp baseline mốc trước zoom<br>2. Nhấn nút Zoom (+) trên Android Auto -> Phóng to bản đồ<br>3. Kiểm tra tự động mức zoom IN (verify_zoom_change.py)<br>4. Nhấn nút Zoom (-) trên Android Auto -> Thu nhỏ bản đồ<br>5. Kiểm tra tự động mức zoom OUT (verify_zoom_change.py)</td>
+            <td>Map thay đổi mức thu phóng tương ứng bước nhảy là 1. Thuật toán đo độ biến thiên pixel xác nhận mức zoom thay đổi thành công (Exit Code 0). VÀ ĐỒNG BỘ MỨC ZOOM XUỐNG MOBILE</td>
+            <td><div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">1. Mốc trước zoom</span>
+                <img class="img-thumb" src="AA_Home_034_zoom_00_truoc_khi_zoom_aa.png" data-filename="AA_Home_034_zoom_00_truoc_khi_zoom_aa.png" onerror="handleImgError(this)" alt="AA_Home_034 AA" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">2. Nhấn (+) Phóng to</span>
+                <img class="img-thumb" src="AA_Home_034_zoom_in_tu_aa_ket_qua_aa.png" data-filename="AA_Home_034_zoom_in_tu_aa_ket_qua_aa.png" onerror="handleImgError(this)" alt="AA_Home_034 AA" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">3. Nhấn (-) Thu nhỏ</span>
+                <img class="img-thumb" src="AA_Home_034_zoom_out_tu_aa_ket_qua_aa.png" data-filename="AA_Home_034_zoom_out_tu_aa_ket_qua_aa.png" onerror="handleImgError(this)" alt="AA_Home_034 AA" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            </div></td>
+            <td><div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">1. Mốc trước zoom</span>
+                <img class="img-thumb img-thumb-mobile" src="AA_Home_034_zoom_00_truoc_khi_zoom_mobile.png" data-filename="AA_Home_034_zoom_00_truoc_khi_zoom_mobile.png" onerror="handleImgError(this)" alt="AA_Home_034 Mobile" onclick="zoomImage(this.src)" style="max-width: 85px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">2. Đồng bộ Zoom In</span>
+                <img class="img-thumb img-thumb-mobile" src="AA_Home_034_zoom_in_tu_aa_dong_bo_mobile.png" data-filename="AA_Home_034_zoom_in_tu_aa_dong_bo_mobile.png" onerror="handleImgError(this)" alt="AA_Home_034 Mobile" onclick="zoomImage(this.src)" style="max-width: 85px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#0369a1; font-weight:700;">3. Đồng bộ Zoom Out</span>
+                <img class="img-thumb img-thumb-mobile" src="AA_Home_034_zoom_out_tu_aa_dong_bo_mobile.png" data-filename="AA_Home_034_zoom_out_tu_aa_dong_bo_mobile.png" onerror="handleImgError(this)" alt="AA_Home_034 Mobile" onclick="zoomImage(this.src)" style="max-width: 85px;">
+              </div>
+            </div></td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">✓ Kiểm tra tự động bằng thuật toán toán học: Độ lệch RMS Diff và tỷ lệ biến thiên pixel đạt chuẩn sau khi nhấn (+) và (-). Bản đồ trên mobile đồng bộ trạng thái zoom theo xe.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_035</strong></td>
+            <td><strong>Kiểm tra thao tác zoom từ app mobile (Thao tác từ Mobile -> Đồng bộ lên Android Auto)</strong></td>
+            <td>1. Nhấn nút Zoom (+) trên Mobile (92, 1920)<br>2. Nhấn nút Zoom (-) trên Mobile (92, 2030)</td>
+            <td>Map thay đổi mức thu phóng tương ứng bước nhảy là 1. VÀ ĐỒNG BỘ MỨC ZOOM LÊN ANDROID AUTO</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_035_zoom_in_tu_mobile_dong_bo_len_aa.png" data-filename="AA_Home_035_zoom_in_tu_mobile_dong_bo_len_aa.png" onerror="handleImgError(this)" alt="AA_Home_035 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_035_zoom_in_tu_mobile_ket_qua_mobile.png" data-filename="AA_Home_035_zoom_in_tu_mobile_ket_qua_mobile.png" onerror="handleImgError(this)" alt="AA_Home_035 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ tương tác chiều Mobile -> AA: Thao tác bấm nút Zoom trên điện thoại khiến bản đồ trên màn hình xe hơi phóng to đồng bộ theo.</div>
+            </td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Home_036</strong></td>
+            <td><strong>Thao tác thay đổi độ lật từ app mobile (Thao tác Tilt/Góc nhìn từ Mobile -> Đồng bộ lên AA)</strong></td>
+            <td>Thao tác thay đổi độ lật / chế độ góc nhìn trên app mobile (nhấn nút Layers/Tilt: 908, 210)</td>
+            <td>Map thay đổi độ lật / góc nghiêng theo thao tác của người dùng trên điện thoại VÀ ĐỒNG BỘ LÊN ANDROID AUTO</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Head Unit (Xe hơi)</span>
+            <img class="img-thumb" src="AA_Home_036_thay_doi_do_lat_tu_mobile_dong_bo_len_aa.png" data-filename="AA_Home_036_thay_doi_do_lat_tu_mobile_dong_bo_len_aa.png" onerror="handleImgError(this)" alt="AA_Home_036 AA" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Mobile App (Điện thoại)</span>
+            <img class="img-thumb img-thumb-mobile" src="AA_Home_036_thay_doi_do_lat_tu_mobile_ket_qua_mobile.png" data-filename="AA_Home_036_thay_doi_do_lat_tu_mobile_ket_qua_mobile.png" onerror="handleImgError(this)" alt="AA_Home_036 Mobile" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đồng bộ góc nghiêng/độ lật: Chuyển đổi góc nhìn 2D/3D trên mobile được cập nhật đồng thời lên màn hình xe hơi.</div>
+            </td>
+          </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal Zoom -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+</script>
+
+</body>
+</html>

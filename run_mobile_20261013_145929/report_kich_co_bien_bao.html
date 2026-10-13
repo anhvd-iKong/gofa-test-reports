@@ -1,0 +1,572 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🚸 Báo Cáo Kiểm Thử Tùy Chỉnh Kích Cỡ Biển Báo Lái Xe - GOFA</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-nav-back {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-nav-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .stat-card .value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+  }
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .section-title h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .section-desc {
+    font-size: 13.5px;
+    color: var(--text-sub);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* Table styling */
+  .table-responsive {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  th, td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+    border-top: 1px solid var(--border);
+  }
+  tr:hover {
+    background: #f8fafc;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .status-pass {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success-border);
+  }
+  .status-fail {
+    background: var(--fail-bg);
+    color: var(--fail);
+    border: 1px solid var(--fail-border);
+  }
+
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 105px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          🚸 Báo Cáo Kiểm Thử Tùy Chỉnh Kích Cỡ Biển Báo Lái Xe
+          <span class="badge-app">GOFA Android Mobile</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện kịch bản kiểm thử trên Android (Device ID: <strong>bffe438f</strong>) • File kịch bản: <code>test_kich_co_bien_bao.yaml</code> • <strong>Thời gian xuất: 09/10/2026</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="report_flow_test_full.html" class="btn-nav-back">
+          ⬅️ Về Báo Cáo Tổng Hợp
+        </a>
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 10 TESTCASES PASSED (100.0%)
+        </span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">10</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">10</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Fatal</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Lệnh (Commands)</div>
+        <div class="value">80/80</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ảnh Bằng Chứng HD</div>
+        <div class="value">14 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Kích Cỡ Biển Báo: Tỷ Lệ Hiển Thị & Slider Điều Chỉnh</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_SIGN_01 &rarr; TC_SIGN_10</span>
+    </div>
+    <p class="section-desc">
+      Kiểm thử thay đổi tỷ lệ kích cỡ biển báo (1.0x - 2.0x), xem trước trực quan (Preview) và áp dụng trên màn hình lái xe thực tế.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 110px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 200px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_SIGN_01</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra hiển thị mặc định khi mở Bottom sheet lần đầu</strong></td>
+            <td>- Đã đăng nhập vào app GOFA.<br>- Đang ở màn hình Cài đặt > Cảnh báo giao thông.</td>
+            <td>1. Nhấn chọn vào mục "Cài đặt kích cỡ biển báo".<br>2. Quan sát giao diện Bottom sheet và màn hình nền (Background).</td>
+            <td>- Bottom sheet trượt lên từ cạnh dưới màn hình mượt mà.<br>- Tiêu đề hiển thị đúng: "Kích cỡ biển báo".<br>- Có nút X ở góc trên bên phải (tọa độ 983, 1903).<br>- Thanh Slider hiển thị rõ ràng với 5 mốc nhãn (Labels): 1, 1.25, 1.5, 1.75, 2. Con trỏ slider nằm mặc định ở mốc 1.<br>- Màn hình nền (Background) phía sau là màn hình Map và hiển thị biển báo mẫu (Biển hạn chế tốc độ 50).</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra hiển thị mặc định khi mở Bottom</span>
+                <img class="img-thumb" src="screenshots/tc_sign_01_default_bottomsheet.webp" data-filename="tc_sign_01_default_bottomsheet.webp" onerror="handleImgError(this)" alt="TC_SIGN_01" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra hiển thị mặc định khi mở Bottom sheet lần đầu. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_02</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra kéo Slider liên tục và thay đổi kích thước Preview</strong></td>
+            <td>Bottom sheet "Kích cỡ biển báo" đang mở.</td>
+            <td>1. Nhấn giữ con trỏ Slider và kéo từ mốc 1 (89, 2046) sang mốc 2 (989, 2046).<br>2. Kéo ngược từ mốc 2 (989, 2046) về lại mốc 1 (89, 2046).</td>
+            <td>- Con trỏ di chuyển mượt mà.<br>- Icon biển báo mẫu (biển 50) ở màn hình nền phía sau phóng to dần lên gấp 2 lần kích thước gốc ở bước 1,<br>và thu nhỏ dần về kích thước ban đầu ở bước 2 theo thời gian thực (Real-time).</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Kiểm tra kéo Slider liên tục và thay đổi</span>
+                  <img class="img-thumb" src="screenshots/tc_sign_02_drag_to_2x.webp" data-filename="tc_sign_02_drag_to_2x.webp" onerror="handleImgError(this)" alt="TC_SIGN_02" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Kiểm tra kéo Slider liên tục và thay đổi</span>
+                  <img class="img-thumb" src="screenshots/tc_sign_02_drag_back_to_1x.webp" data-filename="tc_sign_02_drag_back_to_1x.webp" onerror="handleImgError(this)" alt="TC_SIGN_02" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra kéo Slider liên tục và thay đổi kích thước Preview. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_03</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra logic tự động hít (Snap) của Step Slider</strong></td>
+            <td>Bottom sheet "Kích cỡ biển báo" đang mở.</td>
+            <td>1. Kéo trượt con trỏ slider lửng lơ vào vị trí giữa mốc 1.25 và 1.5 nhưng nằm lệch gần mốc 1.5 hơn (x=480).<br>2. Thả tay ra khỏi màn hình.<br>3. Thực hiện lại thao tác, kéo lửng lơ nằm lệch gần mốc 1.25 hơn (x=370) và thả tay.</td>
+            <td>- Tại bước 2: Hệ thống tính toán khoảng cách và con trỏ slider tự động nhảy (hít/snap) chính xác về vạch mốc 1.5.<br>- Tại bước 3: Con trỏ slider tự động hít/snap về vạch mốc 1.25.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Kiểm tra logic tự động hít (Snap) của St</span>
+                  <img class="img-thumb" src="screenshots/tc_sign_03_snap_to_1_5.webp" data-filename="tc_sign_03_snap_to_1_5.webp" onerror="handleImgError(this)" alt="TC_SIGN_03" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Kiểm tra logic tự động hít (Snap) của St</span>
+                  <img class="img-thumb" src="screenshots/tc_sign_03_snap_to_1_25.webp" data-filename="tc_sign_03_snap_to_1_25.webp" onerror="handleImgError(this)" alt="TC_SIGN_03" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra logic tự động hít (Snap) của Step Slider. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_04</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra nút X đóng nhanh và lưu giá trị</strong></td>
+            <td>Bottom sheet "Kích cỡ biển báo" đang mở.</td>
+            <td>1. Kéo Slider đến mốc 1.5 (Biển báo mẫu phóng to 1.5x).<br>2. Nhấn vào nút X ở góc trên bên phải Bottom sheet (tọa độ 983, 1903).</td>
+            <td>- Bottom sheet đóng lại mượt mà.<br>- Hệ thống ghi nhận giá trị 1.5 làm cấu hình chính thức cho tài khoản/thiết bị (Hiển thị "x1.5" tại hàng Cài đặt kích cỡ biển báo).</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra nút X đóng nhanh và lưu giá trị</span>
+                <img class="img-thumb" src="screenshots/tc_sign_04_save_1_5x.webp" data-filename="tc_sign_04_save_1_5x.webp" onerror="handleImgError(this)" alt="TC_SIGN_04" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra nút X đóng nhanh và lưu giá trị. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_05</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra áp dụng tỷ lệ kích cỡ mới trên Màn hình Home (1.5x)</strong></td>
+            <td>Đã lưu cấu hình kích cỡ biển báo ở mốc 1.5x.</td>
+            <td>1. Quay trở lại màn hình Home.<br>2. Quan sát các icon biển báo giao thông xuất hiện trên màn hình bản đồ Home.</td>
+            <td>- Tất cả các icon biển báo giao thông xuất hiện trên màn hình bản đồ Home đều hiển thị lớn hơn bình thường,<br>đúng với tỷ lệ phóng đại 1.5x.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra áp dụng tỷ lệ kích cỡ mới trên </span>
+                <img class="img-thumb" src="screenshots/tc_sign_05_applied_home_1_5x.webp" data-filename="tc_sign_05_applied_home_1_5x.webp" onerror="handleImgError(this)" alt="TC_SIGN_05" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra áp dụng tỷ lệ kích cỡ mới trên Màn hình Home (1.5x). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_06</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra áp dụng tỷ lệ kích cỡ mới trên Màn hình Dẫn đường (2x)</strong></td>
+            <td>Đã lưu cấu hình kích cỡ biển báo ở mốc 2x.</td>
+            <td>1. Vào Cài đặt > Cảnh báo giao thông > Cài đặt kích cỡ biển báo > chọn mốc 2 (2x), bấm nút X để lưu.<br>2. Quay lại Home, chọn điểm đến và kích hoạt chế độ Dẫn đường ("Bắt đầu").<br>3. Quan sát icon biển báo cắm trên map hành trình dẫn đường.</td>
+            <td>- Toàn bộ các icon biển báo cắm trên map hành trình dẫn đường phải hiển thị ở kích thước tối đa<br>(Phóng to gấp 2 lần kích thước pixel gốc), không bị vỡ hình, mờ hình.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra áp dụng tỷ lệ kích cỡ mới trên </span>
+                <img class="img-thumb" src="screenshots/tc_sign_06_applied_navigation_2x.webp" data-filename="tc_sign_06_applied_navigation_2x.webp" onerror="handleImgError(this)" alt="TC_SIGN_06" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra áp dụng tỷ lệ kích cỡ mới trên Màn hình Dẫn đường (2x). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_07</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra áp dụng tỷ lệ kích cỡ mới trên màn hình Không bản đồ (Auto Focus) (1.75x)</strong></td>
+            <td>Đã lưu cấu hình kích cỡ biển báo ở mốc 1.75x.</td>
+            <td>1. Truy cập Cài đặt > Cảnh báo giao thông > Kích cỡ biển báo > chọn mốc 1.75 và lưu.<br>2. Về Home > Tùy chỉnh bản đồ > Chọn Tập trung (Màn hình Không bản đồ).<br>3. Quan sát các icon biển báo xuất hiện trên màn hình Không bản đồ.</td>
+            <td>- Các icon biển báo hiển thị trên màn hình Không bản đồ cũng phải áp dụng đúng tỷ lệ phóng đại 1.75x.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra áp dụng tỷ lệ kích cỡ mới trên </span>
+                <img class="img-thumb" src="screenshots/tc_sign_07_applied_focus_1_75x.webp" data-filename="tc_sign_07_applied_focus_1_75x.webp" onerror="handleImgError(this)" alt="TC_SIGN_07" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra áp dụng tỷ lệ kích cỡ mới trên màn hình Không bản đồ (Auto Focus) (1.75x). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_08</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra lưu cấu hình dữ liệu sau khi Kill app (Persistence)</strong></td>
+            <td>Đang mở Bottom sheet Kích cỡ biển báo.</td>
+            <td>1. Kéo Slider từ mốc 1 lên mốc 1.75.<br>2. Nhấn nút X để đóng và lưu.<br>3. Thực hiện đóng hẳn ứng dụng (Kill app ngầm).<br>4. Khởi động lại GOFA và vào lại Bottom sheet kiểm tra.</td>
+            <td>- Con trỏ Slider phải giữ nguyên vị trí ở vạch mốc 1.75, không bị reset về mức 1.<br>- Màn hình Cảnh báo giao thông hiển thị chuẩn "x1.75".</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra lưu cấu hình dữ liệu sau khi Ki</span>
+                <img class="img-thumb" src="screenshots/tc_sign_08_persisted_after_kill.webp" data-filename="tc_sign_08_persisted_after_kill.webp" onerror="handleImgError(this)" alt="TC_SIGN_08" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra lưu cấu hình dữ liệu sau khi Kill app (Persistence). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_09</strong></td>
+            <td>Kiểm tra tính năng tự động lưu (Auto</td>
+            <td><strong>Kiểm tra tính năng tự động lưu (Auto-save) khi app bị đóng đột ngột</strong></td>
+            <td>Đang mở Bottom sheet Kích cỡ biển báo.</td>
+            <td>1. Kéo trượt slider từ mốc 1.75 sang mốc 2 (Giao diện nền đã phóng to 2x).<br>2. Không bấm nút X, thực hiện vuốt thoát app/kill app đột ngột từ hệ thống.<br>3. Mở lại ứng dụng GOFA và kiểm tra lại cấu hình kích cỡ biển báo.</td>
+            <td>- Đúng logic xử lý ngoại lệ của hệ thống: Ứng dụng tự động lưu giá trị Slider tại vị trí cuối cùng trước khi đóng app;<br>con trỏ slider nằm ở vạch mốc 2 (hiển thị "x2").</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Kiểm tra tính năng tự động lưu (Auto-sav</span>
+                  <img class="img-thumb" src="screenshots/tc_sign_09_before_sudden_kill.webp" data-filename="tc_sign_09_before_sudden_kill.webp" onerror="handleImgError(this)" alt="TC_SIGN_09" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Kiểm tra tính năng tự động lưu (Auto-sav</span>
+                  <img class="img-thumb" src="screenshots/tc_sign_09_autosave_verified.webp" data-filename="tc_sign_09_autosave_verified.webp" onerror="handleImgError(this)" alt="TC_SIGN_09" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra tính năng tự động lưu (Auto-save) khi app bị đóng đột ngột. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SIGN_10</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra độ phân giải của hình ảnh biển báo khi ở mốc tối đa (2x)</strong></td>
+            <td>Cấu hình kích cỡ biển báo ở mốc 2x.</td>
+            <td>1. Mở Bottom sheet Kích cỡ biển báo ở mốc 2x.<br>2. Quan sát độ sắc nét của các icon biển báo khi phóng to tối đa.</td>
+            <td>- Hình ảnh các icon biển báo khi nhân hệ số tỷ lệ scaling lên 2x bắt buộc phải rõ ràng, sắc nét,<br>không có hiện tượng bị mờ nhiễu, vỡ hạt (pixelated) hoặc lỗi hiển thị răng cưa.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Kiểm tra độ phân giải của hình ảnh biển </span>
+                  <img class="img-thumb" src="screenshots/tc_sign_10_sharpness_at_2x.webp" data-filename="tc_sign_10_sharpness_at_2x.webp" onerror="handleImgError(this)" alt="TC_SIGN_10" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Kiểm tra độ phân giải của hình ảnh biển </span>
+                  <img class="img-thumb" src="screenshots/tc_sign_cleanup_home.webp" data-filename="tc_sign_cleanup_home.webp" onerror="handleImgError(this)" alt="TC_SIGN_10" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra độ phân giải của hình ảnh biển báo khi ở mốc tối đa (2x). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './screenshots/' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../output/bffe438f/screenshots/' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../output/bffe438f/screenshots/' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>

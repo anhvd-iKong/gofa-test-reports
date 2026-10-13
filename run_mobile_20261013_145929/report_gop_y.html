@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📢 Báo Cáo Kiểm Thử Hệ Thống Góp Ý Giao Thông (Feedback & Report) - GOFA</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-nav-back {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-nav-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-fail {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  .status-warn {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 105px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .perf-note {
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #166534;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          📢 Báo Cáo Kiểm Thử Hệ Thống Góp Ý Giao Thông (Feedback & Report)
+          <span class="badge-app">GOFA Android Mobile</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện kịch bản kiểm thử trên Android (Device ID: <strong>bffe438f</strong>) • File kịch bản: <code>test_gop_y.yaml</code> • <strong>Thời gian xuất: 09/10/2026</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="report_flow_test_full.html" class="btn-nav-back">
+          ⬅️ Về Báo Cáo Tổng Hợp
+        </a>
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 8 TESTCASES PASSED (100.0%)
+        </span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">8</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">8</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Fatal</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Lệnh (Commands)</div>
+        <div class="value">80/80</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ảnh Bằng Chứng HD</div>
+        <div class="value">14 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================================== -->
+  <!-- PHẦN CHI TIẾT KIỂM THỬ -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Hệ Thống Góp Ý: Tốc Độ, Biển Báo, Camera, Tắc Đường & Tai Nạn</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_FDB_001 &rarr; TC_FDB_008</span>
+    </div>
+    <p class="section-desc">
+      Kiểm thử mở Bottom Sheet Góp ý, báo cáo tốc độ sai, biển báo mới, camera phạt nguội, tắc đường, tai nạn và validation độ dài bình luận kèm ảnh hiện trường.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 110px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 200px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_FDB_001</strong></td>
+            <td>Màn hình Góp ý</td>
+            <td><strong>Mở Bottom Sheet Góp ý và kiểm tra 6 danh mục phản ánh</strong></td>
+            <td>Tại màn hình Home, nhấn icon Góp ý.</td>
+            <td>1. Quan sát danh sách các danh mục góp ý hiển thị.</td>
+            <td>- Hiển thị 6 danh mục: Tốc độ giới hạn, Biển báo giao thông, Camera giao thông, Tai nạn, Tắc đường, Ngập lụt.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Bottom Sheet Góp ý</span>
+                <img class="img-thumb" src="screenshots/tc_gy_01_gop_y_default.webp" data-filename="tc_gy_01_gop_y_default.webp" onerror="handleImgError(this)" alt="TC_FDB_001" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Giao diện hiển thị đúng 6 icon danh mục góp ý với màu sắc nhận diện đặc thù: Đỏ (Tốc độ), Vàng (Biển báo), Xanh dương (Camera), Cam (Tai nạn), Đỏ đậm (Tắc đường), Xanh lam (Ngập lụt).</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FDB_002</strong></td>
+            <td>Màn hình Góp ý</td>
+            <td><strong>Điều hướng vào chi tiết góp ý Tốc độ và chọn mốc 60 km/h</strong></td>
+            <td>Bottom sheet Góp ý đang mở.</td>
+            <td>1. Chọn danh mục "Tốc độ giới hạn".<br>2. Chọn mốc tốc độ 60 km/h.</td>
+            <td>- Điều hướng vào màn chi tiết có thước đo tốc độ.<br>- Mốc 60 được focus viền xanh.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Màn chi tiết Tốc độ</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_03_nav_toc_do.webp" data-filename="tc_gy_03_nav_toc_do.webp" onerror="handleImgError(this)" alt="TC_FDB_002" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Focus mốc 60 km/h</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_08_focus_60.webp" data-filename="tc_gy_08_focus_60.webp" onerror="handleImgError(this)" alt="TC_FDB_002" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp xác nhận hệ thống điều hướng vào màn hình điều chỉnh tốc độ mượt mà. Vòng tròn biển báo 60 km/h được chọn và hiển thị trung tâm.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FDB_003</strong></td>
+            <td>Màn hình Góp ý</td>
+            <td><strong>Điều hướng vào chi tiết góp ý Biển báo giao thông</strong></td>
+            <td>Bottom sheet Góp ý đang mở.</td>
+            <td>1. Nhấn chọn danh mục "Biển báo giao thông".<br>2. Quan sát danh mục các biển báo.</td>
+            <td>- Hiển thị các loại biển báo phổ biến (Cấm vượt, Khu dân cư, Giảm tốc độ, v.v.).</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Chi tiết Góp ý Biển báo</span>
+                <img class="img-thumb" src="screenshots/tc_gy_03_nav_bien_bao.webp" data-filename="tc_gy_03_nav_bien_bao.webp" onerror="handleImgError(this)" alt="TC_FDB_003" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Màn hình chi tiết phân loại rõ ràng các nhóm biển báo kèm hình ảnh đồ họa tiêu chuẩn theo Quy chuẩn 41.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FDB_004</strong></td>
+            <td>Màn hình Góp ý</td>
+            <td><strong>Điều hướng vào chi tiết góp ý Camera giao thông & Chọn Cam Tốc độ</strong></td>
+            <td>Bottom sheet Góp ý đang mở.</td>
+            <td>1. Chọn danh mục "Camera giao thông".<br>2. Chọn phân loại "Camera phạt nguội tốc độ".</td>
+            <td>- Hiển thị các phân loại camera: Tốc độ, Làn đường, Đèn đỏ.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Danh mục Camera</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_03_nav_camera.webp" data-filename="tc_gy_03_nav_camera.webp" onerror="handleImgError(this)" alt="TC_FDB_004" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Focus Cam Tốc độ</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_10_focus_camera_toc_do.webp" data-filename="tc_gy_10_focus_camera_toc_do.webp" onerror="handleImgError(this)" alt="TC_FDB_004" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Thao tác chọn loại camera diễn ra chính xác, hiển thị kèm mô tả và gợi ý chụp ảnh xác minh.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FDB_005</strong></td>
+            <td>Màn hình Góp ý</td>
+            <td><strong>Kiểm tra hiển thị chi tiết các sự cố động: Tắc đường, Tai nạn, Ngập lụt</strong></td>
+            <td>Bottom sheet Góp ý đang mở.</td>
+            <td>1. Lần lượt nhấn vào từng danh mục Tắc đường, Tai nạn, Ngập lụt.<br>2. Chụp ảnh kiểm tra.</td>
+            <td>- Màn hình tương ứng mở lên với tọa độ hiện tại được tự động ghim sẵn.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Góp ý Tắc đường</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_03_nav_tac_duong.webp" data-filename="tc_gy_03_nav_tac_duong.webp" onerror="handleImgError(this)" alt="TC_FDB_005" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Góp ý Tai nạn</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_03_nav_tai_nan.webp" data-filename="tc_gy_03_nav_tai_nan.webp" onerror="handleImgError(this)" alt="TC_FDB_005" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Góp ý Ngập lụt</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_03_nav_ngap_lut.webp" data-filename="tc_gy_03_nav_ngap_lut.webp" onerror="handleImgError(this)" alt="TC_FDB_005" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Cả 3 phân hệ sự cố khẩn cấp đều tải nhanh chóng, tích hợp sẵn tọa độ GPS của thiết bị tại thời điểm bấm góp ý.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FDB_006</strong></td>
+            <td>Validation Góp ý</td>
+            <td><strong>Kiểm tra giới hạn ký tự ô bình luận (Boundary 100/101 ký tự)</strong></td>
+            <td>Tại ô nhập "Mô tả chi tiết" của màn Góp ý.</td>
+            <td>1. Nhập chuỗi 99 ký tự -> Quan sát counter.<br>2. Nhập 100 ký tự -> Nhập thêm ký tự thứ 101.</td>
+            <td>- Bộ đếm hiển thị đúng 99/100, 100/100. Ký tự thứ 101 bị chặn không cho nhập tiếp.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Nhập 99 ký tự</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_05_binh_luan_99_chars.webp" data-filename="tc_gy_05_binh_luan_99_chars.webp" onerror="handleImgError(this)" alt="TC_FDB_006" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Chặn ký tự 101</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_05_binh_luan_boundary_100_101.webp" data-filename="tc_gy_05_binh_luan_boundary_100_101.webp" onerror="handleImgError(this)" alt="TC_FDB_006" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp kiểm chứng chính xác bộ đếm ký tự: Ô nhập tự động khóa ở đúng 100 ký tự, không xảy ra tràn giao diện hay lỗi crash bộ nhớ đệm.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FDB_007</strong></td>
+            <td>Validation Góp ý</td>
+            <td><strong>Kiểm tra tính năng nút Xóa nhanh (Clear button)</strong></td>
+            <td>Ô bình luận đang có văn bản.</td>
+            <td>1. Quan sát sự xuất hiện của icon dấu X bên phải ô nhập.<br>2. Nhấn vào dấu X.</td>
+            <td>- Nhấn nút Xóa -> Toàn bộ văn bản bị xóa sạch ngay lập tức, counter về 0/100.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Icon X xuất hiện</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_06_step2_nut_xoa_xuat_hien.webp" data-filename="tc_gy_06_step2_nut_xoa_xuat_hien.webp" onerror="handleImgError(this)" alt="TC_FDB_007" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Xóa sạch về 0/100</span>
+                  <img class="img-thumb" src="screenshots/tc_gy_06_step3_xoa_sach_du_lieu.webp" data-filename="tc_gy_06_step3_xoa_sach_du_lieu.webp" onerror="handleImgError(this)" alt="TC_FDB_007" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Thao tác xóa hoạt động phản hồi tức thì, icon X tự động ẩn khi chuỗi nhập trống.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FDB_008</strong></td>
+            <td>Ràng buộc Góp ý</td>
+            <td><strong>Kiểm tra ràng buộc bắt buộc đính kèm ảnh hiện trường</strong></td>
+            <td>Tại màn Góp ý, không đính kèm ảnh mà nhấn "Gửi góp ý".</td>
+            <td>1. Để trống ảnh hiện trường.<br>2. Nhấn nút Gửi góp ý.</td>
+            <td>- Hiển thị thông báo Toast/Alert: "Vui lòng chụp ảnh hoặc tải lên bằng chứng hiện trường".</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Popup yêu cầu ảnh hiện trường</span>
+                <img class="img-thumb" src="screenshots/tc_gy_15_alert_yeu_cau_chup_anh.webp" data-filename="tc_gy_15_alert_yeu_cau_chup_anh.webp" onerror="handleImgError(this)" alt="TC_FDB_008" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hệ thống kích hoạt popup cảnh báo màu hổ phách yêu cầu cung cấp hình ảnh thực tế để đảm bảo độ tin cậy của dữ liệu cộng đồng, ngăn chặn việc spam tọa độ rác.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal Zoom -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './screenshots/' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../output/bffe438f/screenshots/' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../output/bffe438f/screenshots/' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>

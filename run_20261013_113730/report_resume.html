@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo Cáo Kiểm Thử Popup Resume Navigation - Android Auto</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    color: #334155;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s;
+  }
+  .btn-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.warn .value { color: var(--warning); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-warn {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 190px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          ⏱️ Báo Cáo Kiểm Thử Popup Resume Navigation (Tiếp tục hành trình)
+          <span class="badge-app">Phân hệ 5</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Kiểm thử tự động phát hiện ngắt kết nối dở dang, hiển thị Popup Resume, đếm ngược 8 giây tự động kích hoạt dẫn đường và xử lý các nút bấm trên thiết bị: <code>bffe438f</code>
+        </p>
+      </div>
+      <div>
+        <a href="report_master_summary.html" class="btn-back">&larr; Quay lại Dashboard Tổng Hợp</a>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">9 / 9</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">8</div>
+      </div>
+      <div class="stat-card warn">
+        <div class="label">Warning (UI)</div>
+        <div class="value">1</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">88.9%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Ảnh Bằng Chứng</div>
+        <div class="value">9 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Bảng Chi Tiết Kết Quả Kiểm Thử Popup Resume</h3>
+      <span class="badge-app" style="background:#f1f5f9; color:#475569;">AA_Resume_001 -> AA_Resume_011</span>
+    </div>
+    <p class="section-desc">
+      Đánh giá toàn diện cơ chế tiếp tục hành trình khi kết nối lại xe sau khi bị thoát app đột ngột. Cơ chế đếm lùi 8 giây vận hành chính xác và tự động chuyển chế độ dẫn đường an toàn cho người lái.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 110px;">Mã TC</th>
+            <th style="width: 200px;">Tên Test Case</th>
+            <th style="width: 170px;">Điều kiện tiên quyết</th>
+            <th style="width: 220px;">Các bước thực hiện</th>
+            <th style="width: 250px;">Kết quả kỳ vọng</th>
+            <th style="width: 210px; text-align:center;">Ảnh chụp Android Auto</th>
+            <th style="width: 80px; text-align:center;">Kết quả</th>
+            <th>Ghi chú & Đánh giá</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>AA_Resume_001</strong></td>
+            <td><strong>Kiểm tra hiển thị Popup Resume khi ngắt kết nối dở dang</strong></td>
+            <td>Đang dẫn đường thì app bị tắt hoặc ngắt kết nối, sau đó mở lại</td>
+            <td>1. Tạo lộ trình dẫn đường<br>2. Force-stop app<br>3. Mở lại app trên xe</td>
+            <td>Hiển thị Popup Resume với tiêu đề 'Tiếp tục hành trình đến?', tên điểm đến, nút Tiếp tục (kèm đếm ngược 8s) và nút Không</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_001_002_003_007_popup_resume.png" alt="AA_Resume_001" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_001_002_003_007_popup_resume.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Popup hiển thị nổi bật ở trung tâm màn hình, thông tin đầy đủ rõ ràng.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Resume_002</strong></td>
+            <td><strong>Kiểm tra hiển thị tiêu đề Popup Resume</strong></td>
+            <td>Popup Resume đang hiển thị</td>
+            <td>Quan sát tiêu đề popup</td>
+            <td>Tiêu đề 'Tiếp tục hành trình đến?' rõ ràng</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_001_002_003_007_popup_resume.png" alt="AA_Resume_002" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_001_002_003_007_popup_resume.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Tiêu đề chuẩn thiết kế, dễ đọc từ khoảng cách lái xe.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Resume_003</strong></td>
+            <td><strong>Kiểm tra hiển thị thông tin điểm đến</strong></td>
+            <td>Popup Resume đang hiển thị</td>
+            <td>Quan sát tên điểm đến trên popup</td>
+            <td>Hiển thị chính xác tên điểm đến trước khi bị ngắt kết nối</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_001_002_003_007_popup_resume.png" alt="AA_Resume_003" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_001_002_003_007_popup_resume.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Điểm đến được khôi phục chính xác (Ngõ 341 Đường Trung Văn).</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Resume_006</strong></td>
+            <td><strong>Kiểm tra nút 'Tiếp tục' có đồng hồ đếm ngược 8s</strong></td>
+            <td>Popup Resume đang hiển thị</td>
+            <td>Quan sát nút 'Tiếp tục'</td>
+            <td>Nút hiển thị kèm bộ đếm ngược từ 8 giây về 0 giây</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_010_dang_dem_nguoc_8s.png" alt="AA_Resume_006" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_010_dang_dem_nguoc_8s.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Đồng hồ đếm ngược hiển thị rõ ràng bên cạnh nhãn 'Tiếp tục'.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Resume_007</strong></td>
+            <td><strong>Kiểm tra hiển thị giao diện nền phía sau Popup Resume</strong></td>
+            <td>Popup Resume đang hiển thị</td>
+            <td>Quan sát các panel phía sau popup</td>
+            <td>Không bị đè lấn giao diện hoặc hiển thị panel điều hướng thừa</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_001_002_003_007_popup_resume.png" alt="AA_Resume_007" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_001_002_003_007_popup_resume.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-warn">WARNING</span>
+            </td>
+            <td><strong style='color:#f59e0b;'>WARNING / UI GLITCH:</strong> Bảng chỉ dẫn ngã rẽ trước đó vẫn hiển thị mờ phía dưới popup Resume, nên ẩn hoàn toàn các panel phụ này khi popup hiển thị.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Resume_008</strong></td>
+            <td><strong>Kiểm tra chọn nút 'Không' trên Popup Resume</strong></td>
+            <td>Popup Resume đang hiển thị</td>
+            <td>Nhấn nút 'Không' (25%, 55%)</td>
+            <td>Đóng popup resume và quay về màn hình bản đồ Home tự do</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_008_nhan_khong_dong_popup.png" alt="AA_Resume_008" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_008_nhan_khong_dong_popup.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Popup đóng ngay lập tức, hủy bỏ phiên dẫn đường dở dang và đưa về Home an toàn.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Resume_009</strong></td>
+            <td><strong>Kiểm tra chọn nút 'Tiếp tục' trên Popup Resume</strong></td>
+            <td>Popup Resume đang hiển thị</td>
+            <td>Nhấn nút 'Tiếp tục' (25%, 39%)</td>
+            <td>Chuyển ngay sang màn hình Dẫn đường tiếp tục hành trình</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_009_nhan_tiep_tuc_vao_dan_duong.png" alt="AA_Resume_009" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_009_nhan_tiep_tuc_vao_dan_duong.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Khôi phục lộ trình lập tức và chuyển sang chế độ dẫn đường mượt mà.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Resume_010</strong></td>
+            <td><strong>Kiểm tra hoạt động đếm ngược 8s tự động</strong></td>
+            <td>Popup Resume đang hiển thị</td>
+            <td>Để yên không thao tác trên màn hình</td>
+            <td>Đồng hồ đếm lùi từng giây từ 8 về 0</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_010_dang_dem_nguoc_8s.png" alt="AA_Resume_010" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_010_dang_dem_nguoc_8s.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Bộ đếm lùi hoạt động chính xác theo thời gian thực.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Resume_011</strong></td>
+            <td><strong>Kiểm tra tự động chuyển sang dẫn đường sau khi hết 8s</strong></td>
+            <td>Popup Resume đếm ngược hết 8s</td>
+            <td>Quan sát chuyển đổi màn hình sau 8s</td>
+            <td>Tự động chuyển vào màn hình Dẫn đường mà không cần thao tác</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Resume_010_011_tu_dong_vao_dan_duong_sau_8s.png" alt="AA_Resume_011" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Resume_010_011_tu_dong_vao_dan_duong_sau_8s.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Hết 8s, ứng dụng tự động kích hoạt dẫn đường, tối ưu an toàn khi đang lái xe.</td>
+          </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="modalZoom" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+  function zoomImage(src) {
+    var modal = document.getElementById("modalZoom");
+    var img = document.getElementById("modalImg");
+    img.src = src;
+    modal.style.display = "flex";
+  }
+  function closeModal() {
+    document.getElementById("modalZoom").style.display = "none";
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") closeModal();
+  });
+</script>
+
+</body>
+</html>

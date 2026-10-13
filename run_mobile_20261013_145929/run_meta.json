@@ -1,0 +1,17 @@
+{
+  "run_id": "run_mobile_20261013_145929",
+  "run_timestamp": "20261013_145929",
+  "platform": "mobile",
+  "platform_name": "📱 Mobile App",
+  "suite_name": "flow_test_full_mobile.yaml",
+  "datetime": "2026-10-13 14:59:41",
+  "total_cases": 95,
+  "pass_count": 94,
+  "fail_count": 0,
+  "warn_count": 1,
+  "pass_rate": 98.9,
+  "duration": "38m 1s",
+  "duration_sec": 2281,
+  "images_count": 536,
+  "report_url": "run_mobile_20261013_145929/index.html"
+}

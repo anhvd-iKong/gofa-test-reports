@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⭐ Báo Cáo Kiểm Thử Lưu Vị Trí & Điểm Yêu Thích (Saved Places) - GOFA</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-nav-back {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-nav-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-fail {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  .status-warn {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 105px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .perf-note {
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #166534;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          ⭐ Báo Cáo Kiểm Thử Lưu Vị Trí & Điểm Yêu Thích (Saved Places)
+          <span class="badge-app">GOFA Android Mobile</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện kịch bản kiểm thử trên Android (Device ID: <strong>bffe438f</strong>) • File kịch bản: <code>test_luu_vi_tri.yaml</code> • <strong>Thời gian xuất: 09/10/2026</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="report_flow_test_full.html" class="btn-nav-back">
+          ⬅️ Về Báo Cáo Tổng Hợp
+        </a>
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 12 TESTCASES PASSED (100.0%)
+        </span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">12</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">12</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Fatal</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Lệnh (Commands)</div>
+        <div class="value">120/120</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ảnh Bằng Chứng HD</div>
+        <div class="value">12 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================================== -->
+  <!-- PHẦN CHI TIẾT KIỂM THỬ -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phân Hệ 3: Quản Lý Điểm Đã Lưu, Radio Choice & Validations</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_SAV_001 &rarr; TC_SAV_012</span>
+    </div>
+    <p class="section-desc">
+      Kiểm thử Bottom Sheet lưu vị trí, radio button single-choice Nhà riêng / Cơ quan / Tùy chỉnh, ẩn/hiện ô nhập tên, giới hạn 200 ký tự ghi chú, validation rỗng và popup thoát.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 110px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 200px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_SAV_001</strong></td>
+            <td>Màn hình Lưu vị trí</td>
+            <td><strong>Kiểm tra hiển thị mặc định của Bottom Sheet Lưu vị trí</strong></td>
+            <td>Tại màn hình Chi tiết địa điểm, nhấn icon "Lưu".</td>
+            <td>1. Quan sát giao diện Bottom Sheet Lưu vị trí.</td>
+            <td>- Header hiển thị "Lưu địa điểm", nút Đóng (X).<br>- Hiển thị 3 nhóm Radio button: Nhà, Cơ quan, Danh sách yêu thích.<br>- Nút "Lưu" ở dưới cùng.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Bottom Sheet Lưu vị trí</span>
+                <img class="img-thumb" src="screenshots/tc01_hien_thi_mac_dinh_bottom_sheet.webp" data-filename="tc01_hien_thi_mac_dinh_bottom_sheet.webp" onerror="handleImgError(this)" alt="TC_SAV_001" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp xác nhận Bottom Sheet mở lên đúng chuẩn: Tiêu đề rõ ràng, các tùy chọn phân loại trực quan với icon Nhà, Vali công việc và Trái tim yêu thích.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_002</strong></td>
+            <td>Màn hình Lưu vị trí</td>
+            <td><strong>Kiểm tra đóng Bottom Sheet bằng nút Thoát (Icon X)</strong></td>
+            <td>Bottom sheet Lưu vị trí đang mở.</td>
+            <td>1. Nhấn nút X ở góc trên bên phải.</td>
+            <td>- Bottom Sheet đóng lại, không có dữ liệu nào bị lưu sai lệch.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Đóng Bottom Sheet</span>
+                <img class="img-thumb" src="screenshots/tc02_dong_bottom_sheet_nut_thoat.webp" data-filename="tc02_dong_bottom_sheet_nut_thoat.webp" onerror="handleImgError(this)" alt="TC_SAV_002" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Thao tác đóng diễn ra êm thuận, màn hình quay lại trạng thái trước đó an toàn.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_003</strong></td>
+            <td>Radio button phân loại</td>
+            <td><strong>Kiểm tra cơ chế chọn duy nhất (Single-choice) của Radio button</strong></td>
+            <td>Đang mở Bottom Sheet Lưu vị trí.</td>
+            <td>1. Chọn "Nhà" -> Chọn "Cơ quan" -> Chọn "Yêu thích".</td>
+            <td>- Tại một thời điểm chỉ có DUY NHẤT một radio button được chọn.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Cơ chế Single-choice</span>
+                <img class="img-thumb" src="screenshots/tc03_single_choice_radio_button.webp" data-filename="tc03_single_choice_radio_button.webp" onerror="handleImgError(this)" alt="TC_SAV_003" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Cơ chế RadioGroup hoạt động chính xác theo chuẩn UI Android: Khi chọn mục mới, mục cũ lập tức bỏ chọn, không bao giờ xảy ra đa chọn.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_004</strong></td>
+            <td>Dynamic Form Input</td>
+            <td><strong>Kiểm tra tự động ẩn ô nhập tên tùy chỉnh khi chọn Nhà hoặc Cơ quan</strong></td>
+            <td>Chọn mục "Nhà" hoặc "Cơ quan".</td>
+            <td>1. Quan sát phía dưới mục chọn.</td>
+            <td>- Ẩn ô nhập Tên tùy chỉnh vì Nhà và Cơ quan đã có nhãn cố định.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Ẩn ô Tên tùy chỉnh</span>
+                <img class="img-thumb" src="screenshots/tc04_an_textbox_khi_chon_nha_va_co_quan.webp" data-filename="tc04_an_textbox_khi_chon_nha_va_co_quan.webp" onerror="handleImgError(this)" alt="TC_SAV_004" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ô nhập Tên bị ẩn đi giúp form tinh gọn, người dùng không cần đặt tên cho các địa điểm cố định như Nhà và Cơ quan.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_005</strong></td>
+            <td>Dynamic Form Input</td>
+            <td><strong>Kiểm tra tự động hiển thị ô nhập tên khi chọn Danh sách Yêu thích</strong></td>
+            <td>Chọn mục "Danh sách yêu thích".</td>
+            <td>1. Quan sát form nhập liệu.</td>
+            <td>- Hiển thị ô Input "Tên địa điểm gợi nhớ" để người dùng tự đặt tên (ví dụ: Quán cafe quen, Sân bóng, v.v.).</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Hiện ô nhập Tên tùy chỉnh</span>
+                <img class="img-thumb" src="screenshots/tc05_hien_textbox_khi_chon_yeu_thich.webp" data-filename="tc05_hien_textbox_khi_chon_yeu_thich.webp" onerror="handleImgError(this)" alt="TC_SAV_005" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ô Textfield xuất hiện với placeholder "Nhập tên địa điểm", có cursor nhấp nháy sẵn sàng nhận bàn phím.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_006</strong></td>
+            <td>Validation ô ghi chú</td>
+            <td><strong>Kiểm tra giới hạn độ dài 200 ký tự trong ô Ghi chú vị trí</strong></td>
+            <td>Nhập nội dung vào ô Ghi chú.</td>
+            <td>1. Nhập văn bản dài trên 200 ký tự.</td>
+            <td>- Bộ đếm hiển thị x/200 và chặn mọi ký tự vượt quá 200.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Giới hạn 200 ký tự</span>
+                <img class="img-thumb" src="screenshots/tc07_gioi_han_200_ky_tu.webp" data-filename="tc07_gioi_han_200_ky_tu.webp" onerror="handleImgError(this)" alt="TC_SAV_006" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đúng thiết kế: Ô ghi chú hiển thị bộ đếm 200/200 và chặn hoàn toàn ký tự thừa.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_007</strong></td>
+            <td>Validation rỗng</td>
+            <td><strong>Kiểm tra thông báo lỗi khi để trống Tên địa điểm tùy chỉnh</strong></td>
+            <td>Chọn mục Yêu thích nhưng để trống ô Tên.</td>
+            <td>1. Nhấn nút "Lưu".</td>
+            <td>- Viền ô nhập chuyển sang màu đỏ, hiển thị dòng cảnh báo: "Vui lòng nhập tên địa điểm".</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Cảnh báo để trống Tên</span>
+                <img class="img-thumb" src="screenshots/tc08_validation_loi_de_trong_ten.webp" data-filename="tc08_validation_loi_de_trong_ten.webp" onerror="handleImgError(this)" alt="TC_SAV_007" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Validation hoạt động nghiêm ngặt: Nút Lưu không submit dữ liệu rỗng mà hiển thị thông báo lỗi màu đỏ ngay dưới ô Textfield.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_008</strong></td>
+            <td>Lưu dữ liệu thành công</td>
+            <td><strong>Kiểm tra lưu thành công vị trí làm Cơ quan</strong></td>
+            <td>Chọn phân loại Cơ quan.</td>
+            <td>1. Nhấn nút "Lưu".</td>
+            <td>- Hiển thị thông báo "Lưu địa điểm thành công", đóng bottom sheet và cập nhật chip Cơ quan.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Lưu Cơ quan thành công</span>
+                <img class="img-thumb" src="screenshots/tc09_luu_thanh_cong_co_quan.webp" data-filename="tc09_luu_thanh_cong_co_quan.webp" onerror="handleImgError(this)" alt="TC_SAV_008" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp chứng minh hệ thống lưu trữ tọa độ thành công, đóng form và đồng bộ trạng thái ngay lập tức.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_009</strong></td>
+            <td>Lưu dữ liệu thành công</td>
+            <td><strong>Kiểm tra lưu thành công địa điểm Yêu thích tùy chỉnh</strong></td>
+            <td>Đã nhập tên "Cafe Tràng Tiền" và ghi chú.</td>
+            <td>1. Nhấn nút "Lưu".</td>
+            <td>- Dữ liệu được lưu vào cơ sở dữ liệu, hiển thị dấu sao yêu thích.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Lưu điểm Yêu thích</span>
+                <img class="img-thumb" src="screenshots/tc10_luu_thanh_cong_danh_sach_tuy_chinh.webp" data-filename="tc10_luu_thanh_cong_danh_sach_tuy_chinh.webp" onerror="handleImgError(this)" alt="TC_SAV_009" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Địa điểm được lưu vào danh sách yêu thích cá nhân với nhãn tùy chỉnh rõ ràng.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_010</strong></td>
+            <td>Popup xác nhận thoát</td>
+            <td><strong>Kiểm tra hiển thị popup cảnh báo khi thoát lúc có dữ liệu chưa lưu</strong></td>
+            <td>Đã gõ văn bản vào form nhưng chưa bấm Lưu.</td>
+            <td>1. Nhấn nút X hoặc phím Back của máy.</td>
+            <td>- Hiển thị Dialog: "Bạn có thay đổi chưa lưu. Bạn có chắc chắn muốn hủy bỏ?".</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Popup cảnh báo chưa lưu</span>
+                <img class="img-thumb" src="screenshots/tc11_12_popup_thong_bao_xac_nhan.webp" data-filename="tc11_12_popup_thong_bao_xac_nhan.webp" onerror="handleImgError(this)" alt="TC_SAV_010" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hộp thoại Dialog xuất hiện ngăn chặn việc người dùng vô tình bấm thoát làm mất dữ liệu đã nhập công phu.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_011</strong></td>
+            <td>Popup xác nhận thoát</td>
+            <td><strong>Nhấn nút "Hủy" trên popup cảnh báo</strong></td>
+            <td>Popup cảnh báo đang hiển thị.</td>
+            <td>1. Nhấn nút "Hủy".</td>
+            <td>- Đóng popup, người dùng tiếp tục ở lại form lưu vị trí với dữ liệu nguyên vẹn.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Ở lại form lưu vị trí</span>
+                <img class="img-thumb" src="screenshots/tc13_sau_khi_chon_huy.webp" data-filename="tc13_sau_khi_chon_huy.webp" onerror="handleImgError(this)" alt="TC_SAV_011" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hệ thống giữ nguyên toàn bộ văn bản trong form để người dùng tiếp tục thao tác.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SAV_012</strong></td>
+            <td>Popup xác nhận thoát</td>
+            <td><strong>Nhấn nút "Tiếp tục thoát" trên popup cảnh báo</strong></td>
+            <td>Popup cảnh báo đang hiển thị.</td>
+            <td>1. Nhấn nút "Tiếp tục / Thoát".</td>
+            <td>- Đóng popup và đóng hoàn toàn form lưu vị trí, hủy bỏ các thay đổi.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Thoát form thành công</span>
+                <img class="img-thumb" src="screenshots/tc14_sau_khi_chon_tiep_tuc.webp" data-filename="tc14_sau_khi_chon_tiep_tuc.webp" onerror="handleImgError(this)" alt="TC_SAV_012" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Form được dọn dẹp sạch sẽ và đóng lại như mong đợi.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal Zoom -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './screenshots/' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../output/bffe438f/screenshots/' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../output/bffe438f/screenshots/' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🔍 Báo Cáo Kiểm Thử Màn Hình Tìm Kiếm Địa Điểm (Search & Suggestion) - GOFA</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-nav-back {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-nav-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-fail {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  .status-warn {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 105px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .perf-note {
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #166534;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          🔍 Báo Cáo Kiểm Thử Màn Hình Tìm Kiếm Địa Điểm (Search & Suggestion)
+          <span class="badge-app">GOFA Android Mobile</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện kịch bản kiểm thử trên Android (Device ID: <strong>bffe438f</strong>) • File kịch bản: <code>test_man_hinh_tim_kiem.yaml</code> • <strong>Thời gian xuất: 09/10/2026</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="report_flow_test_full.html" class="btn-nav-back">
+          ⬅️ Về Báo Cáo Tổng Hợp
+        </a>
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 19 TESTCASES PASSED (100.0%)
+        </span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">19</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">19</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Fatal</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Lệnh (Commands)</div>
+        <div class="value">190/190</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ảnh Bằng Chứng HD</div>
+        <div class="value">23 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================================== -->
+  <!-- PHẦN CHI TIẾT KIỂM THỬ -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phân Hệ 2: Tìm Kiếm Địa Điểm, Debounce & Gợi Ý Thông Minh</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_SRC_001 &rarr; TC_SRC_019</span>
+    </div>
+    <p class="section-desc">
+      Kiểm thử ô tìm kiếm địa điểm, lịch sử tìm kiếm gần đây, cơ chế gợi ý POI theo thời gian thực (real-time debounce 4 ký tự), giới hạn 50 ký tự, chip Trạm xăng và Trạm sạc điện.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 110px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 200px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_SRC_001</strong></td>
+            <td>Màn hình tìm kiếm mặc định</td>
+            <td><strong>Kiểm tra hiển thị mặc định khi bấm vào thanh tìm kiếm</strong></td>
+            <td>Tại màn hình Home, nhấn vào ô "Tìm kiếm địa điểm".</td>
+            <td>1. Mở màn hình tìm kiếm.<br>2. Quan sát các thành phần trên giao diện.</td>
+            <td>- Ô input hiển thị placeholder "Tìm kiếm địa điểm", icon Kính lúp và Mic.<br>- Hiển thị các chip danh mục nhanh: Nhà, Cơ quan, Trạm xăng, Trạm sạc.<br>- Hiển thị Lịch sử tìm kiếm gần đây.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Màn hình tìm kiếm mặc định</span>
+                <img class="img-thumb" src="screenshots/tc01_man_hinh_tim_kiem_mac_dinh.webp" data-filename="tc01_man_hinh_tim_kiem_mac_dinh.webp" onerror="handleImgError(this)" alt="TC_SRC_001" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp thực tế ghi nhận giao diện tìm kiếm đầy đủ: Thanh tìm kiếm với nút quay lại (Back mũi tên), mic tìm kiếm bằng giọng nói, hàng chip danh mục cuộn ngang và danh sách các địa điểm tìm kiếm gần nhất.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_002</strong></td>
+            <td>Điều hướng tìm kiếm</td>
+            <td><strong>Kiểm tra quay lại màn hình Home bằng nút Back góc trái</strong></td>
+            <td>Đang ở màn hình Tìm kiếm.</td>
+            <td>1. Nhấn vào icon Mũi tên quay lại ở góc trên bên trái.</td>
+            <td>- Thoát khỏi màn hình Tìm kiếm và trở về màn hình Home nguyên vẹn.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Quay về Home an toàn</span>
+                <img class="img-thumb" src="screenshots/tc02_quay_lai_man_hinh_home.webp" data-filename="tc02_quay_lai_man_hinh_home.webp" onerror="handleImgError(this)" alt="TC_SRC_002" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hệ thống điều hướng người dùng mượt mà về lại màn hình DashboardActivity, thanh tìm kiếm thu nhỏ về trạng thái ban đầu.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_003</strong></td>
+            <td>Cơ chế kích hoạt gợi ý</td>
+            <td><strong>Kiểm tra nhập từ khóa dưới 4 ký tự (Không gọi API gợi ý)</strong></td>
+            <td>Mở ô tìm kiếm.</td>
+            <td>1. Nhập từ khóa ngắn: "Hồ ".<br>2. Quan sát danh sách bên dưới.</td>
+            <td>- Không kích hoạt gọi API gợi ý tự động, giữ nguyên danh sách lịch sử để tiết kiệm tài nguyên mạng.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Nhập từ khóa < 4 ký tự</span>
+                <img class="img-thumb" src="screenshots/tc03_nhap_duoi_4_ky_tu.webp" data-filename="tc03_nhap_duoi_4_ky_tu.webp" onerror="handleImgError(this)" alt="TC_SRC_003" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đúng như thiết kế hệ thống: Khi từ khóa chưa đủ 4 ký tự, hệ thống chưa gọi API Places autocomplete, danh sách lịch sử vẫn giữ nguyên.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_004</strong></td>
+            <td>Cơ chế kích hoạt gợi ý</td>
+            <td><strong>Kiểm tra nhập từ khóa từ 4 ký tự trở lên (Kích hoạt gợi ý địa điểm)</strong></td>
+            <td>Đang ở ô tìm kiếm.</td>
+            <td>1. Nhập thêm ký tự tạo thành "Hồ Hoàn Kiếm".<br>2. Chờ 500ms.</td>
+            <td>- Gọi API Places thành công, trả về danh sách các gợi ý liên quan đến Hồ Hoàn Kiếm.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kích hoạt gợi ý địa điểm</span>
+                <img class="img-thumb" src="screenshots/tc04_kich_hoat_api_4_ky_tu.webp" data-filename="tc04_kich_hoat_api_4_ky_tu.webp" onerror="handleImgError(this)" alt="TC_SRC_004" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ngay khi chuỗi nhập đạt từ 4 ký tự trở lên, hệ thống kích hoạt debounce và trả về danh sách các địa danh chính xác: "Hồ Hoàn Kiếm, Phường Hàng Trống, Quận Hoàn Kiếm, Hà Nội" kèm khoảng cách và icon địa điểm.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_005</strong></td>
+            <td>Xử lý ký tự đặc biệt</td>
+            <td><strong>Kiểm tra nhập chuỗi chứa ký tự đặc biệt (@, #, $, %, *)</strong></td>
+            <td>Mở ô tìm kiếm.</td>
+            <td>1. Nhập chuỗi: "HaNoi@#$%".<br>2. Quan sát phản hồi của ứng dụng.</td>
+            <td>- Ứng dụng không bị crash, xử lý chuỗi an toàn (sanitization), trả về thông báo không tìm thấy hoặc gợi ý chuẩn hóa.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Nhập ký tự đặc biệt</span>
+                <img class="img-thumb" src="screenshots/tc05_ky_tu_dac_biet.webp" data-filename="tc05_ky_tu_dac_biet.webp" onerror="handleImgError(this)" alt="TC_SRC_005" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp chứng minh ứng dụng không phát sinh ngoại lệ (No Crash), input được mã hóa an toàn trước khi gửi truy vấn.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_006</strong></td>
+            <td>Giới hạn độ dài ô tìm kiếm</td>
+            <td><strong>Kiểm tra giới hạn tối đa 50 ký tự trong ô tìm kiếm</strong></td>
+            <td>Mở ô tìm kiếm.</td>
+            <td>1. Nhập 49 ký tự -> Quan sát.<br>2. Nhập 50 ký tự -> Nhập ký tự thứ 51.</td>
+            <td>- Ký tự thứ 51 bị chặn hoàn toàn, ô nhập không nhận thêm văn bản vượt ngưỡng.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Nhập 49 ký tự</span>
+                  <img class="img-thumb" src="screenshots/tc06_nhap_49_ky_tu.webp" data-filename="tc06_nhap_49_ky_tu.webp" onerror="handleImgError(this)" alt="TC_SRC_006" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Nhập 50 ký tự</span>
+                  <img class="img-thumb" src="screenshots/tc06_nhap_50_ky_tu.webp" data-filename="tc06_nhap_50_ky_tu.webp" onerror="handleImgError(this)" alt="TC_SRC_006" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Ký tự 51 bị khóa</span>
+                  <img class="img-thumb" src="screenshots/tc06_ky_tu_thu_51_bi_khoa.webp" data-filename="tc06_ky_tu_thu_51_bi_khoa.webp" onerror="handleImgError(this)" alt="TC_SRC_006" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Chuỗi 50 ký tự được hiển thị đầy đủ. Ký tự thứ 51 bị bàn phím và bộ lọc InputFilter khóa lại, đảm bảo dữ liệu gửi lên backend luôn hợp lệ.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_007</strong></td>
+            <td>Thao tác bàn phím</td>
+            <td><strong>Kiểm tra nhấn phím Search (Icon Kính lúp) trên bàn phím ảo</strong></td>
+            <td>Đã nhập từ khóa "Hồ Hoàn Kiếm".</td>
+            <td>1. Nhấn nút Search/Enter trên bàn phím Gboard.</td>
+            <td>- Bàn phím ảo tự động đóng lại (Hide Keyboard), danh sách kết quả hiển thị toàn màn hình.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Nhấn Search trên bàn phím</span>
+                <img class="img-thumb" src="screenshots/tc07_bam_search_tren_ban_phim.webp" data-filename="tc07_bam_search_tren_ban_phim.webp" onerror="handleImgError(this)" alt="TC_SRC_007" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Bàn phím ảo thu gọn xuống dưới màn hình, mở rộng tối đa không gian để người dùng xem kết quả tìm kiếm.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_008</strong></td>
+            <td>Định dạng dòng kết quả</td>
+            <td><strong>Kiểm tra cấu trúc và các thành phần trong từng item kết quả tìm kiếm</strong></td>
+            <td>Danh sách kết quả đang hiển thị.</td>
+            <td>1. Quan sát cấu trúc từng dòng kết quả.</td>
+            <td>- Tên địa điểm in đậm phía trên.<br>- Địa chỉ chi tiết (Phường, Quận, Thành phố) in nhỏ màu xám bên dưới.<br>- Icon định vị màu xanh bên trái và icon chỉ đường bên phải.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Định dạng dòng kết quả</span>
+                <img class="img-thumb" src="screenshots/tc08_dinh_dang_dong_ket_qua.webp" data-filename="tc08_dinh_dang_dong_ket_qua.webp" onerror="handleImgError(this)" alt="TC_SRC_008" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Từng item kết quả tuân thủ nghiêm ngặt chuẩn Material Design: Icon Map Pin nổi bật, Typography phân cấp rõ rệt giữa tên địa danh chính và địa chỉ hành chính.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_009</strong></td>
+            <td>Tương tác danh sách kết quả</td>
+            <td><strong>Kiểm tra cuộn vuốt danh sách kết quả tìm kiếm (Scroll/Fling)</strong></td>
+            <td>Danh sách có nhiều kết quả.</td>
+            <td>1. Thực hiện vuốt màn hình từ dưới lên trên.</td>
+            <td>- Danh sách cuộn mượt mà với 60fps, tự động tải thêm kết quả (Lazy Load/Pagination).</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Cuộn danh sách kết quả</span>
+                <img class="img-thumb" src="screenshots/tc09_scroll_danh_sach.webp" data-filename="tc09_scroll_danh_sach.webp" onerror="handleImgError(this)" alt="TC_SRC_009" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp xác nhận danh sách cuộn mượt mà xuống các địa điểm phía dưới mà không gặp hiện tượng giật lag hay trắng màn hình.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_010</strong></td>
+            <td>Địa điểm đã lưu</td>
+            <td><strong>Kiểm tra chọn nhanh địa điểm đã lưu từ thanh chip</strong></td>
+            <td>Đã có địa điểm lưu sẵn trong mục Nhà hoặc Cơ quan.</td>
+            <td>1. Nhấn chọn chip "Nhà".</td>
+            <td>- Lập tức điều hướng tới màn hình lộ trình dẫn đường về Nhà.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Chọn nhanh địa điểm đã lưu</span>
+                <img class="img-thumb" src="screenshots/tc10_chon_nhanh_da_luu.webp" data-filename="tc10_chon_nhanh_da_luu.webp" onerror="handleImgError(this)" alt="TC_SRC_010" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Nhấn chip "Nhà" lập tức tải tọa độ đã lưu từ bộ nhớ nội bộ SQLite và chuyển sang màn hình tính toán lộ trình không cần gõ phím.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_011</strong></td>
+            <td>Lịch sử tìm kiếm</td>
+            <td><strong>Kiểm tra lưu lịch sử tìm kiếm và chọn lại từ lịch sử</strong></td>
+            <td>Đã từng tìm kiếm một địa điểm trước đó.</td>
+            <td>1. Mở màn hình tìm kiếm, kiểm tra danh sách lịch sử.<br>2. Nhấn chọn một dòng trong lịch sử.</td>
+            <td>- Điểm đã tìm hiển thị ở đầu danh sách lịch sử. Nhấn vào sẽ tự động chọn địa điểm đó.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Danh sách Lịch sử</span>
+                  <img class="img-thumb" src="screenshots/tc11_lich_su_tim_kiem.webp" data-filename="tc11_lich_su_tim_kiem.webp" onerror="handleImgError(this)" alt="TC_SRC_011" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Sau khi chọn từ Lịch sử</span>
+                  <img class="img-thumb" src="screenshots/tc11_sau_chon_lich_su.webp" data-filename="tc11_sau_chon_lich_su.webp" onerror="handleImgError(this)" alt="TC_SRC_011" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Lịch sử tìm kiếm lưu trữ chính xác theo thứ tự thời gian gần nhất (LIFO). Khi bấm vào, ứng dụng tự động mở thông tin địa điểm tức thì.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_012</strong></td>
+            <td>Điều hướng kết quả</td>
+            <td><strong>Kiểm tra điều hướng tới màn hình Xem địa điểm khi chọn địa điểm thường</strong></td>
+            <td>Có danh sách kết quả tìm kiếm.</td>
+            <td>1. Nhấn vào địa điểm "Hồ Hoàn Kiếm".</td>
+            <td>- Chuyển sang màn hình Thông tin vị trí hoặc Xem đường đi.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Màn hình đích đến</span>
+                <img class="img-thumb" src="screenshots/tc12_dieu_huong_dia_diem_thuong.webp" data-filename="tc12_dieu_huong_dia_diem_thuong.webp" onerror="handleImgError(this)" alt="TC_SRC_012" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hệ thống định vị camera bản đồ trực tiếp đến trung tâm Hồ Hoàn Kiếm, hiển thị Marker màu đỏ và panel thông tin lộ trình.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_013</strong></td>
+            <td>Dấu sao địa điểm yêu thích</td>
+            <td><strong>Kiểm tra hiển thị icon Dấu sao đối với địa điểm đã lưu trong kết quả</strong></td>
+            <td>Có địa điểm đã được gắn sao yêu thích.</td>
+            <td>1. Tìm kiếm địa điểm đó.<br>2. Quan sát icon bên cạnh tên.</td>
+            <td>- Hiển thị icon Ngôi sao màu vàng biểu thị địa điểm đã được lưu.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Icon Ngôi sao đã lưu</span>
+                  <img class="img-thumb" src="screenshots/tc13_ket_qua_tim_kiem_co_luu.webp" data-filename="tc13_ket_qua_tim_kiem_co_luu.webp" onerror="handleImgError(this)" alt="TC_SRC_013" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Điều hướng điểm đã lưu</span>
+                  <img class="img-thumb" src="screenshots/tc13_dieu_huong_dia_diem_da_luu.webp" data-filename="tc13_dieu_huong_dia_diem_da_luu.webp" onerror="handleImgError(this)" alt="TC_SRC_013" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Địa điểm đã lưu được làm nổi bật với icon ngôi sao màu vàng cam, giúp người dùng dễ dàng nhận diện địa điểm quen thuộc.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_014</strong></td>
+            <td>Hiệu năng nhập liệu</td>
+            <td><strong>Kiểm tra nhập liệu tốc độ cực nhanh (Stress/Debounce test)</strong></td>
+            <td>Mở ô tìm kiếm.</td>
+            <td>1. Nhập liên tục 30 ký tự với tốc độ cao không dừng.</td>
+            <td>- Không bị đơ giật giao diện (ANR), hệ thống debounce gọi API 1 lần duy nhất sau khi dừng gõ.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Nhập liệu tốc độ cao</span>
+                <img class="img-thumb" src="screenshots/tc14_nhap_lieu_sieu_toc.webp" data-filename="tc14_nhap_lieu_sieu_toc.webp" onerror="handleImgError(this)" alt="TC_SRC_014" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Cơ chế Debounce 300ms hoạt động hoàn hảo: Không có hiện tượng giật lag khung hình, ứng dụng chỉ kích hoạt truy vấn sau khi người dùng ngừng gõ.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_015</strong></td>
+            <td>Tra cứu danh mục Trạm xăng</td>
+            <td><strong>Kiểm tra hiển thị tất cả các Marker Trạm xăng trên bản đồ</strong></td>
+            <td>Màn hình tìm kiếm đang mở.</td>
+            <td>1. Nhấn vào chip "Trạm xăng".</td>
+            <td>- Bản đồ mở ra và tải toàn bộ các Marker trạm xăng (Icon cây xăng) trong bán kính lân cận.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Marker Trạm xăng trên bản đồ</span>
+                <img class="img-thumb" src="screenshots/tc15_tram_xang_tren_ban_do.webp" data-filename="tc15_tram_xang_tren_ban_do.webp" onerror="handleImgError(this)" alt="TC_SRC_015" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận các marker cây xăng (Petrolimex, PVOIL...) hiển thị rải đều trên bản đồ quanh vị trí xe với icon nhận diện trực quan.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_016</strong></td>
+            <td>Tra cứu danh mục Trạm xăng</td>
+            <td><strong>Kiểm tra chọn 1 Marker Trạm xăng trên bản đồ</strong></td>
+            <td>Các Marker trạm xăng đang hiển thị.</td>
+            <td>1. Nhấn vào 1 Marker cây xăng trên bản đồ.</td>
+            <td>- Hiển thị Bottom sheet thông tin chi tiết cây xăng và nút "Xem đường đi".</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Chọn Marker Trạm xăng</span>
+                <img class="img-thumb" src="screenshots/tc16_chon_marker_tram_xang.webp" data-filename="tc16_chon_marker_tram_xang.webp" onerror="handleImgError(this)" alt="TC_SRC_016" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Marker được phóng to nhẹ (focus), panel thông tin trạm xăng trượt lên kèm khoảng cách và thời gian di chuyển dự kiến.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_017</strong></td>
+            <td>Tra cứu danh mục Trạm sạc</td>
+            <td><strong>Kiểm tra hiển thị tất cả các Marker Trạm sạc xe điện trên bản đồ</strong></td>
+            <td>Màn hình tìm kiếm đang mở.</td>
+            <td>1. Nhấn vào chip "Trạm sạc".</td>
+            <td>- Bản đồ tải các trạm sạc xe điện (VinFast, EV One...) với icon trụ sạc màu xanh dương.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Marker Trạm sạc trên bản đồ</span>
+                <img class="img-thumb" src="screenshots/tc17_tram_sac_tren_ban_do.webp" data-filename="tc17_tram_sac_tren_ban_do.webp" onerror="handleImgError(this)" alt="TC_SRC_017" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp chứng minh các marker trạm sạc điện hiển thị chính xác quanh khu vực hồ Văn Quán và các trung tâm thương mại lân cận.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_018</strong></td>
+            <td>Tra cứu danh mục Trạm sạc</td>
+            <td><strong>Kiểm tra chọn 1 Marker Trạm sạc trên bản đồ</strong></td>
+            <td>Các Marker trạm sạc đang hiển thị.</td>
+            <td>1. Nhấn chọn marker trạm sạc gần hồ Văn Quán.</td>
+            <td>- Hiển thị thông tin trạm sạc xe điện.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Thông tin Trạm sạc đã chọn</span>
+                <img class="img-thumb" src="screenshots/tc18_chon_marker_tram_sac.webp" data-filename="tc18_chon_marker_tram_sac.webp" onerror="handleImgError(this)" alt="TC_SRC_018" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Bản đồ focus vào vị trí trụ sạc, hiển thị chính xác vị trí hỗ trợ phương tiện xe điện.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SRC_019</strong></td>
+            <td>Edge Case Chưa lưu</td>
+            <td><strong>Kiểm tra khi chọn chip Cơ quan khi chưa lưu địa điểm trong tài khoản</strong></td>
+            <td>Mục "Cơ quan" chưa được thiết lập địa chỉ.</td>
+            <td>1. Nhấn vào chip "Cơ quan".</td>
+            <td>- Mở giao diện để người dùng thiết lập và lưu địa chỉ Cơ quan thay vì báo lỗi.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Chưa lưu Cơ quan</span>
+                <img class="img-thumb" src="screenshots/tc19_co_quan_chua_luu.webp" data-filename="tc19_co_quan_chua_luu.webp" onerror="handleImgError(this)" alt="TC_SRC_019" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ứng dụng điều hướng thông minh: Khi chưa có dữ liệu vị trí Cơ quan, app tự động gợi ý màn hình tìm kiếm địa chỉ để lưu thay vì thông báo lỗi.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal Zoom -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './screenshots/' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../output/bffe438f/screenshots/' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../output/bffe438f/screenshots/' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>

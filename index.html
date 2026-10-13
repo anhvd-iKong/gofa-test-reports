@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🚀 Lịch Sử & So Sánh Các Lần Chạy Kiểm Thử GOFA (Mobile & Android Auto)</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --fail: #dc2626;
+    --warning: #d97706;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container { max-width: 1440px; margin: 0 auto; }
+  header {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  h1 { font-size: 24px; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px; }
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 18px 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+  }
+  .kpi-title { font-size: 13px; font-weight: 600; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px; }
+  .kpi-value { font-size: 28px; font-weight: 800; margin-top: 6px; color: #0f172a; }
+  
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .filter-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-sub);
+    transition: all 0.2s;
+  }
+  .filter-btn:hover {
+    background: #f1f5f9;
+  }
+  .filter-btn.active {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+  }
+
+  .table-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  }
+  .table-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border);
+    background: #fdfdfd;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  table { width: 100%; border-collapse: collapse; text-align: left; font-size: 14px; }
+  th { background: #f1f5f9; padding: 12px 16px; font-weight: 700; color: #334155; border-bottom: 2px solid var(--border); font-size: 13px; text-transform: uppercase; }
+  td { padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  tr:hover { background: #f8fafc; }
+  .badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .badge-pass { background: #dcfce7; color: #15803d; }
+  .badge-warn { background: #fef3c7; color: #b45309; }
+  
+  .plat-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .plat-mobile {
+    background: #f3e8ff;
+    color: #7e22ce;
+    border: 1px solid #e9d5ff;
+  }
+  .plat-aa {
+    background: #e0f2fe;
+    color: #0369a1;
+    border: 1px solid #bae6fd;
+  }
+
+  .run-link { text-decoration: none; color: var(--primary); }
+  .run-link:hover { text-decoration: underline; color: var(--primary-dark); }
+  .btn-action {
+    display: inline-block;
+    background: var(--primary);
+    color: #fff;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-weight: 600;
+    font-size: 12px;
+    transition: 0.15s ease;
+  }
+  .btn-action:hover { background: var(--primary-dark); }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>🚀 Lịch Sử & So Sánh Các Lần Chạy Kiểm Thử Tự Động GOFA</h1>
+    <p style="color: var(--text-sub); margin-top: 6px;">
+      Hệ thống lưu trữ và đối chiếu toàn bộ các phiên kiểm thử tự động trên <strong>📱 Mobile App</strong> và <strong>🚗 Android Auto</strong>. Mỗi lần chạy được đóng gói riêng biệt kèm trọn bộ báo cáo HTML và kho ảnh chụp màn hình HD độc lập.
+    </p>
+  </header>
+
+  <div class="kpi-grid">
+    <div class="kpi-card">
+      <div class="kpi-title">Tổng số lần chạy</div>
+      <div class="kpi-value">6</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">📱 Mobile App Runs</div>
+      <div class="kpi-value" style="color:#7e22ce;">1</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">🚗 Android Auto Runs</div>
+      <div class="kpi-value" style="color:#0369a1;">5</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Tỉ lệ Pass gần nhất</div>
+      <div class="kpi-value" style="color:var(--success);">98.9%</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Lần chạy mới nhất</div>
+      <div class="kpi-value" style="font-size:15px; margin-top:10px; color:#475569;">
+        2026-10-13 14:59:41
+      </div>
+    </div>
+  </div>
+
+  <div class="filter-bar">
+    <span style="font-size:13px; font-weight:700; color:#475569; margin-right:6px;">Bộ lọc:</span>
+    <button class="filter-btn active" onclick="filterRuns('all', event)">🌟 Tất Cả (6)</button>
+    <button class="filter-btn" onclick="filterRuns('mobile', event)">📱 Mobile App (1)</button>
+    <button class="filter-btn" onclick="filterRuns('aa', event)">🚗 Android Auto (5)</button>
+  </div>
+
+  <div class="table-card">
+    <div class="table-header">
+      <h3 style="font-size:16px; font-weight:700;">📋 Bảng Đối Chiếu Các Phiên Kiểm Thử</h3>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:50px;">STT</th>
+          <th style="text-align:center; width:130px;">Nền Tảng</th>
+          <th>Mã Phiên Chạy (Run ID)</th>
+          <th style="text-align:center;">Tổng TCs</th>
+          <th style="text-align:center;">Pass</th>
+          <th style="text-align:center;">Fail</th>
+          <th style="text-align:center;">Warn</th>
+          <th style="text-align:center;">Tỉ Lệ Pass</th>
+          <th style="text-align:center;">Thời Gian</th>
+          <th style="text-align:center;">Kho Ảnh</th>
+          <th style="text-align:center;">Thao Tác</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+        <tr class="row-mobile">
+          <td><strong>#6</strong></td>
+          <td style="text-align:center;"><span class="plat-badge plat-mobile">📱 Mobile App</span></td>
+          <td>
+            <a href="run_mobile_20261013_145929/index.html" class="run-link">
+              📁 <strong>run_mobile_20261013_145929</strong>
+            </a>
+            <div style="font-size:12px; color:#64748b; margin-top:3px;">🕒 2026-10-13 14:59:41</div>
+          </td>
+          <td style="text-align:center;"><strong>95</strong></td>
+          <td style="text-align:center; color:#16a34a; font-weight:600;">✓ 94</td>
+          <td style="text-align:center; color:#dc2626; font-weight:600;">✗ 0</td>
+          <td style="text-align:center; color:#d97706; font-weight:600;">⚠ 1</td>
+          <td style="text-align:center;">
+            <span class="badge badge-pass">★ 98.9%</span>
+          </td>
+          <td style="text-align:center; font-family:'JetBrains Mono', monospace; font-size:12px;">38m 1s</td>
+          <td style="text-align:center; font-size:12px; color:#64748b;">📷 536 ảnh</td>
+          <td style="text-align:center;">
+            <a href="run_mobile_20261013_145929/index.html" class="btn-action">
+              🔍 Mở Báo Cáo &rarr;
+            </a>
+          </td>
+        </tr>
+        
+        <tr class="row-aa">
+          <td><strong>#5</strong></td>
+          <td style="text-align:center;"><span class="plat-badge plat-aa">🚗 Android Auto</span></td>
+          <td>
+            <a href="run_20261013_113730/index.html" class="run-link">
+              📁 <strong>run_20261013_113730</strong>
+            </a>
+            <div style="font-size:12px; color:#64748b; margin-top:3px;">🕒 2026-10-13 11:37:31</div>
+          </td>
+          <td style="text-align:center;"><strong>169</strong></td>
+          <td style="text-align:center; color:#16a34a; font-weight:600;">✓ 166</td>
+          <td style="text-align:center; color:#dc2626; font-weight:600;">✗ 2</td>
+          <td style="text-align:center; color:#d97706; font-weight:600;">⚠ 1</td>
+          <td style="text-align:center;">
+            <span class="badge badge-pass">★ 98.2%</span>
+          </td>
+          <td style="text-align:center; font-family:'JetBrains Mono', monospace; font-size:12px;">17m 11s</td>
+          <td style="text-align:center; font-size:12px; color:#64748b;">📷 271 ảnh</td>
+          <td style="text-align:center;">
+            <a href="run_20261013_113730/index.html" class="btn-action">
+              🔍 Mở Báo Cáo &rarr;
+            </a>
+          </td>
+        </tr>
+        
+        <tr class="row-aa">
+          <td><strong>#4</strong></td>
+          <td style="text-align:center;"><span class="plat-badge plat-aa">🚗 Android Auto</span></td>
+          <td>
+            <a href="run_20261013_101829/index.html" class="run-link">
+              📁 <strong>run_20261013_101829</strong>
+            </a>
+            <div style="font-size:12px; color:#64748b; margin-top:3px;">🕒 2026-10-13 10:18:30</div>
+          </td>
+          <td style="text-align:center;"><strong>169</strong></td>
+          <td style="text-align:center; color:#16a34a; font-weight:600;">✓ 165</td>
+          <td style="text-align:center; color:#dc2626; font-weight:600;">✗ 3</td>
+          <td style="text-align:center; color:#d97706; font-weight:600;">⚠ 1</td>
+          <td style="text-align:center;">
+            <span class="badge badge-pass">★ 97.6%</span>
+          </td>
+          <td style="text-align:center; font-family:'JetBrains Mono', monospace; font-size:12px;">17m 15s</td>
+          <td style="text-align:center; font-size:12px; color:#64748b;">📷 275 ảnh</td>
+          <td style="text-align:center;">
+            <a href="run_20261013_101829/index.html" class="btn-action">
+              🔍 Mở Báo Cáo &rarr;
+            </a>
+          </td>
+        </tr>
+        
+        <tr class="row-aa">
+          <td><strong>#3</strong></td>
+          <td style="text-align:center;"><span class="plat-badge plat-aa">🚗 Android Auto</span></td>
+          <td>
+            <a href="run_20261013_091453/index.html" class="run-link">
+              📁 <strong>run_20261013_091453</strong>
+            </a>
+            <div style="font-size:12px; color:#64748b; margin-top:3px;">🕒 2026-10-13 09:14:54</div>
+          </td>
+          <td style="text-align:center;"><strong>169</strong></td>
+          <td style="text-align:center; color:#16a34a; font-weight:600;">✓ 165</td>
+          <td style="text-align:center; color:#dc2626; font-weight:600;">✗ 3</td>
+          <td style="text-align:center; color:#d97706; font-weight:600;">⚠ 1</td>
+          <td style="text-align:center;">
+            <span class="badge badge-pass">★ 97.6%</span>
+          </td>
+          <td style="text-align:center; font-family:'JetBrains Mono', monospace; font-size:12px;">17m 15s</td>
+          <td style="text-align:center; font-size:12px; color:#64748b;">📷 275 ảnh</td>
+          <td style="text-align:center;">
+            <a href="run_20261013_091453/index.html" class="btn-action">
+              🔍 Mở Báo Cáo &rarr;
+            </a>
+          </td>
+        </tr>
+        
+        <tr class="row-aa">
+          <td><strong>#2</strong></td>
+          <td style="text-align:center;"><span class="plat-badge plat-aa">🚗 Android Auto</span></td>
+          <td>
+            <a href="run_20261012_170312/index.html" class="run-link">
+              📁 <strong>run_20261012_170312</strong>
+            </a>
+            <div style="font-size:12px; color:#64748b; margin-top:3px;">🕒 2026-10-12 17:03:13</div>
+          </td>
+          <td style="text-align:center;"><strong>169</strong></td>
+          <td style="text-align:center; color:#16a34a; font-weight:600;">✓ 165</td>
+          <td style="text-align:center; color:#dc2626; font-weight:600;">✗ 3</td>
+          <td style="text-align:center; color:#d97706; font-weight:600;">⚠ 1</td>
+          <td style="text-align:center;">
+            <span class="badge badge-pass">★ 97.6%</span>
+          </td>
+          <td style="text-align:center; font-family:'JetBrains Mono', monospace; font-size:12px;">17m 18s</td>
+          <td style="text-align:center; font-size:12px; color:#64748b;">📷 275 ảnh</td>
+          <td style="text-align:center;">
+            <a href="run_20261012_170312/index.html" class="btn-action">
+              🔍 Mở Báo Cáo &rarr;
+            </a>
+          </td>
+        </tr>
+        
+        <tr class="row-aa">
+          <td><strong>#1</strong></td>
+          <td style="text-align:center;"><span class="plat-badge plat-aa">🚗 Android Auto</span></td>
+          <td>
+            <a href="run_20261009_113948/index.html" class="run-link">
+              📁 <strong>run_20261009_113948</strong>
+            </a>
+            <div style="font-size:12px; color:#64748b; margin-top:3px;">🕒 2026-10-09 11:39:48</div>
+          </td>
+          <td style="text-align:center;"><strong>169</strong></td>
+          <td style="text-align:center; color:#16a34a; font-weight:600;">✓ 165</td>
+          <td style="text-align:center; color:#dc2626; font-weight:600;">✗ 3</td>
+          <td style="text-align:center; color:#d97706; font-weight:600;">⚠ 1</td>
+          <td style="text-align:center;">
+            <span class="badge badge-pass">★ 97.6%</span>
+          </td>
+          <td style="text-align:center; font-family:'JetBrains Mono', monospace; font-size:12px;">17m 14s</td>
+          <td style="text-align:center; font-size:12px; color:#64748b;">📷 275 ảnh</td>
+          <td style="text-align:center;">
+            <a href="run_20261009_113948/index.html" class="btn-action">
+              🔍 Mở Báo Cáo &rarr;
+            </a>
+          </td>
+        </tr>
+        
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function filterRuns(type, evt) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    if (evt && evt.target) {
+      evt.target.classList.add('active');
+    }
+    
+    const rows = document.querySelectorAll('tbody tr');
+    rows.forEach(r => {
+      if (type === 'all') {
+        r.style.display = '';
+      } else if (type === 'mobile') {
+        r.style.display = r.classList.contains('row-mobile') ? '' : 'none';
+      } else if (type === 'aa') {
+        r.style.display = r.classList.contains('row-aa') ? '' : 'none';
+      }
+    });
+  }
+</script>
+</body>
+</html>
