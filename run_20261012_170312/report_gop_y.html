@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo Cáo Kiểm Thử Chức Năng Góp Ý - Android Auto</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    color: #334155;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s;
+  }
+  .btn-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .img-gallery-table {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 150px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #64748b;
+    text-align: center;
+    max-width: 150px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          📣 Báo Cáo Kiểm Thử Tính Năng Góp Ý (Feedback)
+          <span class="badge-app">Phân hệ 6</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Kiểm thử tự động các luồng báo cáo cộng đồng từ xe hơi: Tốc độ giới hạn, Biển báo giao thông và Camera phạt nguội trên thiết bị: <code>bffe438f</code>
+        </p>
+      </div>
+      <div>
+        <a href="report_master_summary.html" class="btn-back">&larr; Quay lại Dashboard Tổng Hợp</a>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Luồng Kiểm Thử</div>
+        <div class="value">3 Luồng</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">3</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tọa độ nút Góp ý</div>
+        <div class="value" style="font-size: 20px; color:#0369a1;">(94.0%, 77.5%)</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Ảnh Bằng Chứng</div>
+        <div class="value">7 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Bảng Chi Tiết Kết Quả Kiểm Thử Tính Năng Góp Ý</h3>
+      <span class="badge-app" style="background:#f1f5f9; color:#475569;">AA_GopY_001 -> AA_GopY_003</span>
+    </div>
+    <p class="section-desc">
+      Đánh giá 3 luồng báo cáo giao thông cộng đồng từ xe hơi: Góp ý Tốc độ giới hạn, Biển báo và Camera giám sát giao thông. Tất cả các phản hồi đều gửi thành công lên server và nhận Toast xác nhận trực quan.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 110px;">Mã TC</th>
+            <th style="width: 190px;">Tên Test Case / Luồng</th>
+            <th style="width: 160px;">Điều kiện tiên quyết</th>
+            <th style="width: 220px;">Các bước thực hiện</th>
+            <th style="width: 230px;">Kết quả kỳ vọng</th>
+            <th style="width: 320px; text-align:center;">Ảnh chụp các bước Android Auto</th>
+            <th style="width: 80px; text-align:center;">Kết quả</th>
+            <th>Ghi chú & Đánh giá</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>AA_GopY_001</strong></td>
+            <td><strong>Luồng 1: Góp ý Tốc độ giới hạn trên bản đồ</strong></td>
+            <td>Đang ở màn hình Home Android Auto</td>
+            <td>1. Nhấn nút Góp ý góc dưới bên phải (94.0%, 77.5%)<br>2. Chọn danh mục 'Tốc độ giới hạn' (22.5%, 33%)<br>3. Kiểm tra các item biển báo 30, 40, 50, 60, 70, 80km/h<br>4. Chọn biển 60km/h để gửi phản hồi lên server</td>
+            <td>Mở danh mục thành công, hiển thị các biển tốc độ chuẩn thiết kế. Chọn biển gửi phản hồi thành công và hiển thị Toast 'Gửi phản hồi thành công'</td>
+            <td><div class="img-gallery-table">
+            <div class="img-box">
+              <span class="device-label">1. Menu chính Góp ý</span>
+              <img class="img-thumb" src="01_gop_y_menu.png" alt="1. Menu chính Góp ý" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/01_gop_y_menu.png'">
+            </div>
+        
+            <div class="img-box">
+              <span class="device-label">2. Màn Tốc độ giới hạn</span>
+              <img class="img-thumb" src="02_gop_y_toc_do_gioi_han.png" alt="2. Màn Tốc độ giới hạn" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/02_gop_y_toc_do_gioi_han.png'">
+            </div>
+        
+            <div class="img-box">
+              <span class="device-label">3. Toast gửi thành công</span>
+              <img class="img-thumb" src="03_gop_y_toc_do_da_gui.png" alt="3. Toast gửi thành công" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/03_gop_y_toc_do_da_gui.png'">
+            </div>
+        </div></td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Menu Góp ý mở chuẩn xác, các item biển tốc độ hiển thị rõ nét, phản hồi gửi lên server và toast thông báo thành công.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_GopY_002</strong></td>
+            <td><strong>Luồng 2: Góp ý Biển báo giao thông</strong></td>
+            <td>Đang ở màn hình Home Android Auto</td>
+            <td>1. Nhấn nút Góp ý (94.0%, 77.5%)<br>2. Chọn danh mục 'Biển báo' (50%, 33%)<br>3. Kiểm tra danh sách biển báo (Cấm vượt, Khu dân cư, Cấm đỗ,...)<br>4. Chọn biển 'Cấm đỗ xe' để gửi phản hồi</td>
+            <td>Hiển thị danh sách các biển báo trực quan. Chọn item gửi thành công và hiển thị Toast xác nhận</td>
+            <td><div class="img-gallery-table">
+            <div class="img-box">
+              <span class="device-label">1. Danh sách Biển báo</span>
+              <img class="img-thumb" src="04_gop_y_bien_bao.png" alt="1. Danh sách Biển báo" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/04_gop_y_bien_bao.png'">
+            </div>
+        
+            <div class="img-box">
+              <span class="device-label">2. Toast gửi thành công</span>
+              <img class="img-thumb" src="05_gop_y_bien_bao_da_gui.png" alt="2. Toast gửi thành công" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/05_gop_y_bien_bao_da_gui.png'">
+            </div>
+        </div></td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Danh sách biển báo hiển thị đầy đủ icon trực quan, gửi phản hồi biển báo thành công.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_GopY_003</strong></td>
+            <td><strong>Luồng 3: Góp ý Camera giao thông & Quay về Home</strong></td>
+            <td>Đang ở màn hình Home Android Auto</td>
+            <td>1. Nhấn nút Góp ý (94.0%, 77.5%)<br>2. Chọn danh mục 'Camera' (77%, 33%)<br>3. Kiểm tra danh sách (Camera phạt tốc độ, Phạt vượt đèn đỏ, AI,...)<br>4. Chọn 'Camera phạt tốc độ' để gửi phản hồi<br>5. Nhấn nút Quay lại (6%, 10%) về Home</td>
+            <td>Hiển thị danh sách loại camera, gửi phản hồi thành công và quay về màn hình Home bản đồ an toàn</td>
+            <td><div class="img-gallery-table">
+            <div class="img-box">
+              <span class="device-label">1. Danh sách Camera</span>
+              <img class="img-thumb" src="06_gop_y_camera.png" alt="1. Danh sách Camera" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/06_gop_y_camera.png'">
+            </div>
+        
+            <div class="img-box">
+              <span class="device-label">2. Toast gửi thành công</span>
+              <img class="img-thumb" src="07_gop_y_camera_da_gui.png" alt="2. Toast gửi thành công" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/07_gop_y_camera_da_gui.png'">
+            </div>
+        </div></td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Gửi thông tin camera giao thông thành công, ứng dụng quay về màn hình Home ổn định.</td>
+          </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="modalZoom" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+  function zoomImage(src) {
+    var modal = document.getElementById("modalZoom");
+    var img = document.getElementById("modalImg");
+    img.src = src;
+    modal.style.display = "flex";
+  }
+  function closeModal() {
+    document.getElementById("modalZoom").style.display = "none";
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") closeModal();
+  });
+</script>
+
+</body>
+</html>

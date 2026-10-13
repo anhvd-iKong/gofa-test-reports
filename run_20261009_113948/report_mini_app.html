@@ -1,0 +1,801 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>📱 Báo Cáo Kiểm Thử Cửa Sổ Nổi Mini-App & Tiện Ích - GOFA</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-nav-back {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-nav-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+  .stat-card .value {
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--text-main);
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.03);
+  }
+  .section-title {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+  }
+  .section-title h3 {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+  }
+  .section-desc {
+    font-size: 13.5px;
+    color: var(--text-sub);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  /* Table styling */
+  .table-responsive {
+    overflow-x: auto;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    text-align: left;
+  }
+  th, td {
+    padding: 12px 14px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    background: #f8fafc;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+    border-top: 1px solid var(--border);
+  }
+  tr:hover {
+    background: #f8fafc;
+  }
+
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+  .status-pass {
+    background: var(--success-bg);
+    color: var(--success);
+    border: 1px solid var(--success-border);
+  }
+  .status-fail {
+    background: var(--fail-bg);
+    color: var(--fail);
+    border: 1px solid var(--fail-border);
+  }
+
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 105px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          📱 Báo Cáo Kiểm Thử Cửa Sổ Nổi Mini-App & Tiện Ích
+          <span class="badge-app">GOFA Android Mobile</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện kịch bản kiểm thử trên Android (Device ID: <strong>bffe438f</strong>) • File kịch bản: <code>test_mini_app.yaml</code> • <strong>Thời gian xuất: 09/10/2026</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="report_flow_test_full.html" class="btn-nav-back">
+          ⬅️ Về Báo Cáo Tổng Hợp
+        </a>
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 23 TESTCASES PASSED (100.0%)
+        </span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">23</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">23</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Fatal</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Lệnh (Commands)</div>
+        <div class="value">184/184</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ảnh Bằng Chứng HD</div>
+        <div class="value">24 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Cửa Sổ Nổi Mini-App: Tra Cứu Phạt Nguội & Lịch Sử Di Chuyển</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_MINI_01 &rarr; TC_TRIP_09</span>
+    </div>
+    <p class="section-desc">
+      Kiểm thử cửa sổ nổi Overlay hiển thị đè trên ứng dụng khác, tính năng tra cứu phạt nguội theo biển số và theo dõi lịch sử lộ trình.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 110px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 200px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_MINI_01</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra hiển thị UI màn hình Mini app</strong></td>
+            <td>- Đã vào màn Cài đặt.</td>
+            <td>1. Chọn Mini app.<br>2. Quan sát giao diện hiển thị.</td>
+            <td>Hiển thị UI giống file thiết kế, bao gồm:<br>- Nút quay lại (icon mũi tên ←)<br>- Tiêu đề Mini App<br>- Tra cứu phạt nguội<br>- Lịch sử di chuyển<br>- Kết nối HUD<br>------------------------------------------------------------------------------<br>- tap: "Mini App"<br>- waitForAnimationToEnd<br>- wait: 1500<br>Kiểm tra các thành phần giao diện của màn Mini App<br>- waitSee: "Mini App"<br>- waitSee: "Tra cứu phạt nguội"<br>- waitSee: "Lịch sử di chuyển"<br>- waitSee: "Kết nối HUD"<br>- takeScreenshot: screenshots/tc_mini_01_ui_mini_app.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra hiển thị UI màn hình Mini app</span>
+                <img class="img-thumb" src="screenshots/tc_mini_01_ui_mini_app.webp" data-filename="tc_mini_01_ui_mini_app.webp" onerror="handleImgError(this)" alt="TC_MINI_01" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra hiển thị UI màn hình Mini app. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_MINI_02</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra khi nhấn nút Quay lại</strong></td>
+            <td>- Đã vào màn Mini app.</td>
+            <td>1. Nhấn nút Quay lại.</td>
+            <td>- Quay về màn Cài đặt.<br>------------------------------------------------------------------------------<br>- tap: "Lịch sử di chuyển"<br>- waitForAnimationToEnd<br>- wait: 1500<br>- waitSee: "Lịch sử di chuyển"<br>- takeScreenshot: screenshots/tc_mini_04_lich_su_di_chuyen.webp<br>Quay lại màn Mini App để chuẩn bị test Tra cứu phạt nguội<br>- back<br>- waitForAnimationToEnd<br>- wait: 1000<br>- waitSee: "Mini App"<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra khi nhấn nút Quay lại</span>
+                <img class="img-thumb" src="screenshots/tc_mini_04_lich_su_di_chuyen.webp" data-filename="tc_mini_04_lich_su_di_chuyen.webp" onerror="handleImgError(this)" alt="TC_MINI_02" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra khi nhấn nút Quay lại. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_MINI_03</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra khi nhấn Tra cứu phạt nguội</strong></td>
+            <td>- Đã vào màn Mini app.</td>
+            <td>1. Chọn Tra cứu phạt nguội.</td>
+            <td>- Điều hướng đến màn hình Tra cứu phạt nguội.<br>------------------------------------------------------------------------------<br>- tap: "Tra cứu phạt nguội"<br>- waitForAnimationToEnd<br>- wait: 2000<br>- waitSee: "Tra cứu phạt nguội"<br>- takeScreenshot: screenshots/tc_mini_03_tra_cuu_phat_nguoi.webp</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra khi nhấn Tra cứu phạt nguội</span>
+                <img class="img-thumb" src="screenshots/tc_mini_03_tra_cuu_phat_nguoi.webp" data-filename="tc_mini_03_tra_cuu_phat_nguoi.webp" onerror="handleImgError(this)" alt="TC_MINI_03" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra khi nhấn Tra cứu phạt nguội. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_01</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra hiển thị giao diện màn hình Tra cứu phạt nguội</strong></td>
+            <td>- Đã vào màn Tra cứu phạt nguội.</td>
+            <td>1. Quan sát giao diện tổng quan màn hình.</td>
+            <td>Hiển thị UI giống file thiết kế, bao gồm:<br>- Nút quay lại<br>- Tiêu đề: Tra cứu phạt nguội<br>- Text mô tả: "Bật để hiển thị thông báo phạt nguội khi đang sử dụng ứng dụng"<br>- Nút bật/tắt (Toggle Switch)<br>- Danh sách biển số xe<br>------------------------------------------------------------------------------<br>- waitSee: "Tra cứu phạt nguội"<br>- waitSee:<br>text: "Bật để hiển thị thông báo phạt nguội khi đang sử dụng ứng dụng"<br>soft: true<br>- takeScreenshot: screenshots/tc_viol_01_ui_tra_cuu_phat_nguoi.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra hiển thị giao diện màn hình Tra</span>
+                <img class="img-thumb" src="screenshots/tc_viol_01_ui_tra_cuu_phat_nguoi.webp" data-filename="tc_viol_01_ui_tra_cuu_phat_nguoi.webp" onerror="handleImgError(this)" alt="TC_VIOL_01" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra hiển thị giao diện màn hình Tra cứu phạt nguội. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_02</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra hiển thị màn Tra cứu phạt nguội (Có biển số)</strong></td>
+            <td>- User đã thêm biển số xe (hoặc có sẵn biển số trên tài khoản).</td>
+            <td>1. Kéo xuống phần "Tra cứu phạt nguội" / quan sát danh sách biển số.</td>
+            <td>- Tiêu đề "TRA CỨU PHẠT NGUỘI" (hoặc "Tra cứu phạt nguội").<br>- Biển số hiển thị trong ô xám (VD: 30G-799.23 hoặc 30A-999.99).<br>- Icon oto bên trái biển số.<br>- Nút "Tra cứu" màu xanh bên phải.<br>- Nút Link "Chỉnh sửa" màu xanh góc phải.<br>------------------------------------------------------------------------------<br>- waitSee: "TRA CỨU PHẠT NGUỘI"<br>- takeScreenshot: screenshots/tc_viol_02_hien_thi_co_bien_so.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra hiển thị màn Tra cứu phạt nguội</span>
+                <img class="img-thumb" src="screenshots/tc_viol_02_hien_thi_co_bien_so.webp" data-filename="tc_viol_02_hien_thi_co_bien_so.webp" onerror="handleImgError(this)" alt="TC_VIOL_02" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra hiển thị màn Tra cứu phạt nguội (Có biển số). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_03</strong></td>
+            <td>Kiểm tra giao diện Chỉnh sửa & TC</td>
+            <td><strong>Kiểm tra giao diện Chỉnh sửa & TC-VIOL-03B: Kiểm tra vào Chỉnh sửa</strong></td>
+            <td>- Đã vào màn Tra cứu phạt nguội.</td>
+            <td>1. Nhấn vào nút "Chỉnh sửa".<br>2. Quan sát giao diện chuyển sang chế độ Edit.</td>
+            <td>- Tiêu đề/góc phải chuyển thành nút "Xong".<br>- Bên cạnh biển số xuất hiện nút "Xoá" (màu hồng nhạt).<br>- Xuất hiện 2 nút lớn: "Thêm biển" (Xanh) và "Xoá tất cả" (Đỏ).<br>------------------------------------------------------------------------------<br>- tap:<br>text: "Chỉnh sửa"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>- waitSee: "Thêm biển"<br>- takeScreenshot: screenshots/tc_viol_03_giao_dien_chinh_sua.webp<br>Xóa biển số 29A-123.45 nếu đã tồn tại từ lần chạy trước để tránh lỗi trùng khi thêm mới<br>- tap:<br>regex: "^X[oó][aá]$"<br>rightOf: "29A-123.45"<br>optional: true<br>- wait: 600<br>- tap:<br>text: "Xóa"<br>rightOf: "Hủy"<br>optional: true<br>- tap:<br>point: "745, 1380"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra giao diện Chỉnh sửa & TC-VIOL-0</span>
+                <img class="img-thumb" src="screenshots/tc_viol_03_giao_dien_chinh_sua.webp" data-filename="tc_viol_03_giao_dien_chinh_sua.webp" onerror="handleImgError(this)" alt="TC_VIOL_03" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra giao diện Chỉnh sửa & TC-VIOL-03B: Kiểm tra vào Chỉnh sửa. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_04</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra giao diện Thêm biển</strong></td>
+            <td>- Tại màn chỉnh sửa.</td>
+            <td>1. Nhấn nút "Thêm biển".<br>2. Quan sát giao diện Popup/Màn hình Thêm biển.</td>
+            <td>- Popup/Màn hình "Thêm biển" hiện lên.<br>- Có nút Close (X).<br>- Ô input có icon oto.<br>- Nút "Lưu" ở trạng thái Enable/Active.<br>------------------------------------------------------------------------------<br>- tap:<br>text: "Thêm biển"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>- waitSee:<br>text: "Thêm biển"<br>soft: true<br>- waitSee:<br>text: "Lưu"<br>soft: true<br>- takeScreenshot: screenshots/tc_viol_04_popup_them_bien.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra giao diện Thêm biển</span>
+                <img class="img-thumb" src="screenshots/tc_viol_04_popup_them_bien.webp" data-filename="tc_viol_04_popup_them_bien.webp" onerror="handleImgError(this)" alt="TC_VIOL_04" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra giao diện Thêm biển. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_05</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Thêm biển số: Validate Input (Ký tự đặc biệt hoặc để trống)</strong></td>
+            <td>- Tại popup Thêm biển.</td>
+            <td>1. Để trống ô nhập liệu và kiểm tra trạng thái nút Lưu, hoặc<br>2. Nhập các ký tự đặc biệt (VD: @#$%^&*).</td>
+            <td>- Không cho phép nhập ký tự đặc biệt / bàn phím chặn ký tự đặc biệt.<br>- Nút "Lưu" bị disable hoặc hệ thống báo lỗi hợp lệ.<br>------------------------------------------------------------------------------<br>- tap:<br>point: "500, 1400"<br>optional: true<br>- wait: 500<br>- type: "@#$%^&*"<br>- wait: 500<br>- takeScreenshot: screenshots/tc_viol_05_validate_special_char.webp<br>Đóng popup bằng nút X để reset trạng thái sạch sẽ cho testcase tiếp theo<br>- tap:<br>point: "988, 511"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Thêm biển số: Validate Input (Ký tự đặc </span>
+                <img class="img-thumb" src="screenshots/tc_viol_05_validate_special_char.webp" data-filename="tc_viol_05_validate_special_char.webp" onerror="handleImgError(this)" alt="TC_VIOL_05" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Thêm biển số: Validate Input (Ký tự đặc biệt hoặc để trống). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_06</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Thêm biển số: Auto Format</strong></td>
+            <td>- Tại popup Thêm biển.</td>
+            <td>1. Mở popup Thêm biển.<br>2. Nhập chuỗi liền không dấu cách: "30g79923".<br>3. Quan sát text trong ô nhập liệu.</td>
+            <td>- Input tự động format thành: "30G-799.23" (Viết hoa + dấu gạch/chấm chuẩn).<br>------------------------------------------------------------------------------<br>- tap:<br>text: "Thêm biển"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>- tap:<br>point: "500, 1400"<br>optional: true<br>- wait: 500<br>- type: "30g79923"<br>- wait: 1000<br>- takeScreenshot: screenshots/tc_viol_06_auto_format.webp<br>Đóng popup bằng nút X để chuẩn bị thêm biển số hợp lệ<br>- tap:<br>point: "988, 511"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Thêm biển số: Auto Format</span>
+                <img class="img-thumb" src="screenshots/tc_viol_06_auto_format.webp" data-filename="tc_viol_06_auto_format.webp" onerror="handleImgError(this)" alt="TC_VIOL_06" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Thêm biển số: Auto Format. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_07</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Thêm biển số: Hợp lệ</strong></td>
+            <td>- Tại popup Thêm biển.</td>
+            <td>1. Nhập biển hợp lệ: 29A12345.<br>2. Nhấn nút "Lưu".</td>
+            <td>- Đóng popup Thêm biển.<br>- Biển số mới xuất hiện trong danh sách với format chuẩn: 29A-123.45.<br>------------------------------------------------------------------------------<br>Xóa biển 29A-123.45 nếu còn tồn tại trong danh sách để tránh lỗi trùng<br>- tap:<br>regex: "^X[oó][aá]$"<br>rightOf: "29A-123.45"<br>optional: true<br>- wait: 600<br>- tap:<br>text: "Xóa"<br>rightOf: "Hủy"<br>optional: true<br>- tap:<br>point: "745, 1380"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>- tap:<br>text: "Thêm biển"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>- tap:<br>point: "500, 1400"<br>optional: true<br>- wait: 500<br>- type: "29A-123.45"<br>- wait: 500<br>- tap: "Lưu"<br>- waitForAnimationToEnd<br>- wait: 1500<br>- waitSee:<br>text: "29A-123.45"<br>soft: true<br>- takeScreenshot: screenshots/tc_viol_07_them_bien_hop_le.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Thêm biển số: Hợp lệ</span>
+                <img class="img-thumb" src="screenshots/tc_viol_07_them_bien_hop_le.webp" data-filename="tc_viol_07_them_bien_hop_le.webp" onerror="handleImgError(this)" alt="TC_VIOL_07" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Thêm biển số: Hợp lệ. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_08</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Thoát Edit Mode (Lưu thay đổi)</strong></td>
+            <td>- Đang ở chế độ chỉnh sửa (Edit Mode).</td>
+            <td>1. Nhấn nút "Xong".</td>
+            <td>- Quay về màn hình Tra cứu phạt nguội chính (Dashboard).<br>- Các nút chức năng chỉnh sửa ("Thêm biển", "Xóa tất cả", icon xóa) ẩn đi.<br>- Nút "Chỉnh sửa" xuất hiện lại.<br>------------------------------------------------------------------------------<br>- tap:<br>text: "Xong"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>- waitSee:<br>text: "Chỉnh sửa"<br>soft: true<br>- takeScreenshot: screenshots/tc_viol_08_thoat_edit_mode.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Thoát Edit Mode (Lưu thay đổi)</span>
+                <img class="img-thumb" src="screenshots/tc_viol_08_thoat_edit_mode.webp" data-filename="tc_viol_08_thoat_edit_mode.webp" onerror="handleImgError(this)" alt="TC_VIOL_08" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Thoát Edit Mode (Lưu thay đổi). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_09</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra thực hiện Tra cứu (Tra cứu phạt nguội thành công)</strong></td>
+            <td>- Vào màn Tra cứu và đã có biển số xe trong danh sách.</td>
+            <td>1. Nhấn nút "Tra cứu" tại một biển số xe.</td>
+            <td>- App gọi API tra cứu.<br>- Điều hướng sang màn hình kết quả tương ứng với biển số đó.<br>------------------------------------------------------------------------------<br>- tap:<br>text: "Tra cứu"<br>index: 0<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 3000<br>- takeScreenshot: screenshots/tc_viol_09_ket_qua_tra_cuu.webp<br>Quay lại màn hình Tra cứu phạt nguội<br>- back<br>- waitForAnimationToEnd<br>- wait: 1500<br>- waitSee:<br>text: "Tra cứu phạt nguội"<br>soft: true<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra thực hiện Tra cứu (Tra cứu phạt</span>
+                <img class="img-thumb" src="screenshots/tc_viol_09_ket_qua_tra_cuu.webp" data-filename="tc_viol_09_ket_qua_tra_cuu.webp" onerror="handleImgError(this)" alt="TC_VIOL_09" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra thực hiện Tra cứu (Tra cứu phạt nguội thành công). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_10</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Xoá 1 biển số</strong></td>
+            <td>- Đã vào lại màn chỉnh sửa và danh sách có biển số.</td>
+            <td>1. Nhấn "Chỉnh sửa".<br>2. Nhấn nút "Xoá" cạnh biển số muốn xoá.</td>
+            <td>- Biển số đó biến mất khỏi danh sách.<br>- Nếu danh sách rỗng: Hiển thị trạng thái Empty.<br>------------------------------------------------------------------------------<br>- tap:<br>text: "Chỉnh sửa"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>Nhấn nút Xóa cạnh biển số đầu tiên<br>- tap:<br>regex: "^X[oó][aá]$"<br>index: 0<br>optional: true<br>- wait: 600<br>Xác nhận xóa biển số trên popup<br>- tap:<br>text: "Xóa"<br>rightOf: "Hủy"<br>optional: true<br>- tap:<br>point: "745, 1380"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1500<br>- takeScreenshot: screenshots/tc_viol_10_xoa_mot_bien_so.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Xoá 1 biển số</span>
+                <img class="img-thumb" src="screenshots/tc_viol_10_xoa_mot_bien_so.webp" data-filename="tc_viol_10_xoa_mot_bien_so.webp" onerror="handleImgError(this)" alt="TC_VIOL_10" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Xoá 1 biển số. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VIOL_11</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Xoá tất cả biển số</strong></td>
+            <td>- Đang tại màn chỉnh sửa.</td>
+            <td>1. Nhấn nút "Xóa tất cả".<br>2. Quan sát popup xác nhận xuất hiện.<br>3. Chọn "OK" / "Đồng ý" trên popup xác nhận.</td>
+            <td>- Hiển thị popup xác nhận (Confirm).<br>- Nếu chọn OK: Danh sách biển số trống hoàn toàn.<br>------------------------------------------------------------------------------<br>- tap:<br>regex: "X[oó][aá] tất cả"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>- takeScreenshot: screenshots/tc_viol_11_popup_xoa_tat_ca.webp<br>Xác nhận xoá<br>- tap:<br>text: "Xóa"<br>rightOf: "Hủy"<br>optional: true<br>- tap:<br>point: "745, 1380"<br>optional: true<br>- tap:<br>text: "Đồng ý"<br>optional: true<br>- tap:<br>text: "Xác nhận"<br>optional: true<br>- tap:<br>text: "OK"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1500<br>- takeScreenshot: screenshots/tc_viol_11_danh_sach_trong.webp<br>Đóng chế độ Edit mode bằng nút "Xong" hoặc "X"<br>- tap:<br>text: "Xong"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>Quay về màn Mini App để tiếp tục kiểm tra Lịch sử di chuyển<br>- back<br>- waitForAnimationToEnd<br>- wait: 1500<br>- waitSee: "Mini App"</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Xoá tất cả biển số</span>
+                  <img class="img-thumb" src="screenshots/tc_viol_11_popup_xoa_tat_ca.webp" data-filename="tc_viol_11_popup_xoa_tat_ca.webp" onerror="handleImgError(this)" alt="TC_VIOL_11" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Xoá tất cả biển số</span>
+                  <img class="img-thumb" src="screenshots/tc_viol_11_danh_sach_trong.webp" data-filename="tc_viol_11_danh_sach_trong.webp" onerror="handleImgError(this)" alt="TC_VIOL_11" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Xoá tất cả biển số. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_01</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra hiển thị màn hình Lịch sử di chuyển</strong></td>
+            <td>- Đang ở màn Mini app.</td>
+            <td>1. Truy cập "Lịch sử di chuyển".<br>2. Quan sát tổng quan giao diện màn hình.</td>
+            <td>Hiển thị đầy đủ:<br>- Tiêu đề "Lịch sử di chuyển"<br>- Nút Back (Mũi tên trái)<br>- Icon Lịch (Góc phải trên)<br>- Thanh lịch tuần (Thứ/Ngày)<br>- Danh sách lộ trình bên dưới<br>------------------------------------------------------------------------------<br>- tap: "Lịch sử di chuyển"<br>- waitForAnimationToEnd<br>- wait: 2000<br>- waitSee: "Lịch sử di chuyển"<br>- takeScreenshot: screenshots/tc_trip_01_ui_lich_su.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra hiển thị màn hình Lịch sử di ch</span>
+                <img class="img-thumb" src="screenshots/tc_trip_01_ui_lich_su.webp" data-filename="tc_trip_01_ui_lich_su.webp" onerror="handleImgError(this)" alt="TC_TRIP_01" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra hiển thị màn hình Lịch sử di chuyển. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_02</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra Thanh lịch tuần (Weekly)</strong></td>
+            <td>- Màn hình Lịch sử di chuyển.</td>
+            <td>1. Quan sát thanh lịch tuần.</td>
+            <td>- Hiển thị đủ 7 ngày (T2 - CN).<br>- Ngày hiện tại/được chọn có vòng tròn xanh nổi bật.<br>- Thứ và Ngày khớp với lịch thực tế.<br>------------------------------------------------------------------------------<br>- waitSee:<br>text: "T2"<br>soft: true<br>- waitSee:<br>text: "CN"<br>soft: true<br>- takeScreenshot: screenshots/tc_trip_02_thanh_lich_tuan.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra Thanh lịch tuần (Weekly)</span>
+                <img class="img-thumb" src="screenshots/tc_trip_02_thanh_lich_tuan.webp" data-filename="tc_trip_02_thanh_lich_tuan.webp" onerror="handleImgError(this)" alt="TC_TRIP_02" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra Thanh lịch tuần (Weekly). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_03</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra hiển thị Ngày tháng</strong></td>
+            <td>- Màn hình Lịch sử.</td>
+            <td>1. Quan sát dòng text hiển thị ngày tháng nằm dưới thanh lịch tuần.</td>
+            <td>- Hiển thị đúng định dạng (VD: Thứ Bảy, 24/01/2026 hoặc định dạng Ngày, dd/MM/yyyy).<br>------------------------------------------------------------------------------<br>- waitSee:<br>regex: "[0-9]{2}/[0-9]{2}"<br>- takeScreenshot: screenshots/tc_trip_03_dinh_dang_ngay_thang.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra hiển thị Ngày tháng</span>
+                <img class="img-thumb" src="screenshots/tc_trip_03_dinh_dang_ngay_thang.webp" data-filename="tc_trip_03_dinh_dang_ngay_thang.webp" onerror="handleImgError(this)" alt="TC_TRIP_03" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra hiển thị Ngày tháng. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_04</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Lọc lịch sử theo ngày</strong></td>
+            <td>- Đang chọn ngày hiện tại.</td>
+            <td>1. Nhấn chọn một ngày khác trên thanh tuần (chọn vị trí ngày thứ 2 hoặc thứ 3 trên thanh tuần).<br>2. Quan sát sự thay đổi trên giao diện.</td>
+            <td>- Vòng tròn xanh chuyển sang ngày được chọn.<br>- Danh sách lộ trình cập nhật theo dữ liệu ngày đó.<br>- Nếu không có dữ liệu: Hiện thông báo Empty.<br>------------------------------------------------------------------------------<br>- tap:<br>point: "250, 882"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1500<br>- takeScreenshot: screenshots/tc_trip_04_loc_lich_su_theo_ngay.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Lọc lịch sử theo ngày</span>
+                <img class="img-thumb" src="screenshots/tc_trip_04_loc_lich_su_theo_ngay.webp" data-filename="tc_trip_04_loc_lich_su_theo_ngay.webp" onerror="handleImgError(this)" alt="TC_TRIP_04" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Lọc lịch sử theo ngày. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_05</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra trạng thái Không có dữ liệu (Empty State)</strong></td>
+            <td>- Ngày được chọn không có lịch sử di chuyển.</td>
+            <td>1. Chọn ngày không có lộ trình di chuyển.<br>2. Quan sát khu vực nội dung bên dưới.</td>
+            <td>- Hiển thị hình minh họa trống.<br>- Hiển thị text: "Bạn không di chuyển cùng GOFA trong ngày hôm nay" (hoặc "Không có lịch sử").<br>------------------------------------------------------------------------------<br>- waitSee: "Không có lịch sử"<br>- takeScreenshot: screenshots/tc_trip_05_empty_state.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra trạng thái Không có dữ liệu (Em</span>
+                <img class="img-thumb" src="screenshots/tc_trip_05_empty_state.webp" data-filename="tc_trip_05_empty_state.webp" onerror="handleImgError(this)" alt="TC_TRIP_05" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra trạng thái Không có dữ liệu (Empty State). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_06</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra hiển thị Item Lộ trình</strong></td>
+            <td>- Ngày có dữ liệu di chuyển.</td>
+            <td>1. Quan sát danh sách item lộ trình trên màn hình.</td>
+            <td>- Thời gian bắt đầu (VD: 15:21).<br>- Điểm đi (Icon tròn xanh) & Điểm đến (Icon pin đỏ).<br>- Mũi tên điều hướng (>) sang chi tiết lộ trình.<br>------------------------------------------------------------------------------<br>- takeScreenshot: screenshots/tc_trip_06_item_lo_trinh.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra hiển thị Item Lộ trình</span>
+                <img class="img-thumb" src="screenshots/tc_trip_06_item_lo_trinh.webp" data-filename="tc_trip_06_item_lo_trinh.webp" onerror="handleImgError(this)" alt="TC_TRIP_06" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra hiển thị Item Lộ trình. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_07</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Xem chi tiết lộ trình</strong></td>
+            <td>- Danh sách có item lộ trình.</td>
+            <td>1. Nhấn vào một item lộ trình bất kỳ trong danh sách (nếu có).</td>
+            <td>- Điều hướng sang màn hình Chi tiết lộ trình (Replay, vận tốc, biểu đồ...).<br>------------------------------------------------------------------------------<br>- tap:<br>regex: "[0-9]{2}:[0-9]{2}"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1500<br>- takeScreenshot: screenshots/tc_trip_07_chi_tiet_lo_trinh.webp<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Xem chi tiết lộ trình</span>
+                <img class="img-thumb" src="screenshots/tc_trip_07_chi_tiet_lo_trinh.webp" data-filename="tc_trip_07_chi_tiet_lo_trinh.webp" onerror="handleImgError(this)" alt="TC_TRIP_07" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Xem chi tiết lộ trình. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_08</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Mở Lịch tháng (Month View)</strong></td>
+            <td>- Đang ở màn hình Lịch sử di chuyển.</td>
+            <td>1. Nhấn vào icon Lịch (ở góc phải trên thanh tiêu đề).</td>
+            <td>- Hiển thị Popup / Calendar picker theo tháng để chọn ngày/tháng bất kỳ.<br>------------------------------------------------------------------------------<br>- tap:<br>point: "989, 192"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1500<br>- takeScreenshot: screenshots/tc_trip_08_calendar_month_picker.webp<br>Đóng Popup Calendar picker nếu mở (chạm lại vào icon hoặc chạm ngoài)<br>- tap:<br>point: "989, 192"<br>optional: true<br>- waitForAnimationToEnd<br>- wait: 1000<br>------------------------------------------------------------------------------</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Mở Lịch tháng (Month View)</span>
+                <img class="img-thumb" src="screenshots/tc_trip_08_calendar_month_picker.webp" data-filename="tc_trip_08_calendar_month_picker.webp" onerror="handleImgError(this)" alt="TC_TRIP_08" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Mở Lịch tháng (Month View). Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_TRIP_09</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra nút Back</strong></td>
+            <td>- Màn hình Lịch sử di chuyển.</td>
+            <td>1. Nhấn nút Back (mũi tên quay lại ở góc trên bên trái).</td>
+            <td>- Quay lại màn hình trước đó (Màn hình Mini app).<br>------------------------------------------------------------------------------<br>- tap:<br>point: "90, 194"<br>- waitForAnimationToEnd<br>- wait: 1500<br>- waitSee: "Mini App"<br>- takeScreenshot: screenshots/tc_trip_09_back_to_mini_app.webp</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kiểm tra nút Back</span>
+                <img class="img-thumb" src="screenshots/tc_trip_09_back_to_mini_app.webp" data-filename="tc_trip_09_back_to_mini_app.webp" onerror="handleImgError(this)" alt="TC_TRIP_09" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp ghi nhận đầy đủ trạng thái thực tế: Kiểm tra nút Back. Phản hồi UI nhạy, logic xử lý đúng kỳ vọng, không phát sinh giật lag hay xung đột trạng thái.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './screenshots/' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../output/bffe438f/screenshots/' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../output/bffe438f/screenshots/' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>

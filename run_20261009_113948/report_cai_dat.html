@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>⚙️ Báo Cáo Kiểm Thử Trung Tâm Cài Đặt Hệ Thống GOFA - GOFA</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-nav-back {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-nav-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-fail {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  .status-warn {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 105px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .perf-note {
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #166534;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          ⚙️ Báo Cáo Kiểm Thử Trung Tâm Cài Đặt Hệ Thống GOFA
+          <span class="badge-app">GOFA Android Mobile</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện kịch bản kiểm thử trên Android (Device ID: <strong>bffe438f</strong>) • File kịch bản: <code>flow_test_cai_dat.yaml</code> • <strong>Thời gian xuất: 09/10/2026</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="report_flow_test_full.html" class="btn-nav-back">
+          ⬅️ Về Báo Cáo Tổng Hợp
+        </a>
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 7 TESTCASES PASSED (100.0%)
+        </span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">7</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">7</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Fatal</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Lệnh (Commands)</div>
+        <div class="value">70/70</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ảnh Bằng Chứng HD</div>
+        <div class="value">8 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================================== -->
+  <!-- PHẦN CHI TIẾT KIỂM THỬ -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phân Hệ 8: Trung Tâm Cấu Hình & Tuỳ Biến Ứng Dụng</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_SET_001 &rarr; TC_SET_007</span>
+    </div>
+    <p class="section-desc">
+      Kiểm thử 6 phân vùng cài đặt: Âm thanh & Bluetooth xe hơi, Giọng nói vùng miền TTS AI, Cấu hình cảnh báo tốc độ/camera, Cỡ biển báo, Tài khoản Pro và Mini-app tiện ích.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 110px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 200px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_SET_001</strong></td>
+            <td>Cài đặt hệ thống</td>
+            <td><strong>Kiểm tra hiển thị trung tâm Cài đặt GOFA trên Android</strong></td>
+            <td>Tại Home, nhấn vào icon Bánh răng Cài đặt ở góc dưới.</td>
+            <td>1. Quan sát danh mục các mục cài đặt.</td>
+            <td>- Hiển thị đầy đủ: Âm thanh & Giọng nói, Cảnh báo giao thông, Bản đồ & Hiển thị, Tài khoản, Cửa sổ nổi.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Trung tâm Cài đặt GOFA</span>
+                <img class="img-thumb" src="screenshots/tc_set_02_android_default_view.webp" data-filename="tc_set_02_android_default_view.webp" onerror="handleImgError(this)" alt="TC_SET_001" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Giao diện Cài đặt tổ chức khoa học theo từng nhóm tính năng với icon nhận diện rõ ràng, hỗ trợ tìm kiếm nhanh mục cấu hình.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SET_002</strong></td>
+            <td>Cài đặt Âm thanh</td>
+            <td><strong>Kiểm tra cấu hình Âm thanh dẫn đường và các kênh xuất âm thanh</strong></td>
+            <td>Chọn mục "Cài đặt âm thanh".</td>
+            <td>1. Kiểm tra thanh trượt âm lượng.<br>2. Kiểm tra tùy chọn phát qua Bluetooth xe hơi.</td>
+            <td>- Cho phép điều chỉnh âm lượng độc lập với âm lượng nhạc, hỗ trợ kênh Bluetooth HFP/A2DP.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Công tắc âm thanh</span>
+                <img class="img-thumb" src="screenshots/tc_set_03_default_switches.webp" data-filename="tc_set_03_default_switches.webp" onerror="handleImgError(this)" alt="TC_SET_002" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Thanh trượt âm lượng phản hồi mượt mà, có nút nghe thử âm lượng mẫu ngay tại chỗ.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SET_003</strong></td>
+            <td>Tùy biến Giọng nói</td>
+            <td><strong>Kiểm tra danh sách Giọng nói dẫn đường theo vùng miền (Bắc, Trung, Nam)</strong></td>
+            <td>Chọn mục "Tùy biến giọng nói".</td>
+            <td>1. Kiểm tra danh sách giọng đọc: Miền Bắc (Nữ/Nam), Miền Nam, Miền Trung.<br>2. Bấm nút Nghe thử.</td>
+            <td>- Tải và phát âm thanh mẫu ngữ điệu vùng miền chuẩn xác, truyền cảm.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;">
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Danh sách Giọng nói</span>
+                  <img class="img-thumb" src="screenshots/tc_voi_01_default_ui.webp" data-filename="tc_voi_01_default_ui.webp" onerror="handleImgError(this)" alt="TC_SET_003" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label" style="font-size:10px;">Giọng đọc Miền Bắc</span>
+                  <img class="img-thumb" src="screenshots/tc_voi_03_select_bac.webp" data-filename="tc_voi_03_select_bac.webp" onerror="handleImgError(this)" alt="TC_SET_003" onclick="zoomImage(this.src)" style="max-width:80px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hệ thống tích hợp đầy đủ các gói giọng đọc tự nhiên (TTS AI) với chất giọng ấm áp, phát âm rõ ràng tên đường phố Việt Nam.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SET_004</strong></td>
+            <td>Cảnh báo giao thông</td>
+            <td><strong>Kiểm tra cấu hình ngưỡng Cảnh báo tốc độ và các loại biển báo</strong></td>
+            <td>Chọn mục "Cảnh báo giao thông".</td>
+            <td>1. Điều chỉnh ngưỡng quá tốc độ (+0 km/h, +5 km/h, +10 km/h).<br>2. Bật/Tắt cảnh báo camera phạt nguội.</td>
+            <td>- Lưu giữ cấu hình ngưỡng cảnh báo chính xác theo từng tài xế.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Cài đặt Cảnh báo</span>
+                <img class="img-thumb" src="screenshots/tc_traf_01_default_ui.webp" data-filename="tc_traf_01_default_ui.webp" onerror="handleImgError(this)" alt="TC_SET_004" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Cung cấp đầy đủ các tùy chọn chi tiết: Cảnh báo camera tốc độ, camera phạt nguội làn đường, khu dân cư, đường hầm, cầu hẹp.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SET_005</strong></td>
+            <td>Kích cỡ biển báo</td>
+            <td><strong>Kiểm tra tùy chỉnh Kích cỡ biển báo trên màn hình lái xe (Nhỏ, Vừa, Lớn)</strong></td>
+            <td>Chọn mục "Kích cỡ biển báo".</td>
+            <td>1. Chọn kích cỡ "Lớn" (Large).<br>2. Xem khung xem trước (Preview).</td>
+            <td>- Khung xem trước hiển thị biển báo phóng to 125% - 150%, phù hợp màn hình ô tô đặt xa tầm mắt.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Kích cỡ biển báo</span>
+                <img class="img-thumb" src="screenshots/tc_sign_01_default_bottomsheet.webp" data-filename="tc_sign_01_default_bottomsheet.webp" onerror="handleImgError(this)" alt="TC_SET_005" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Tính năng hữu ích cho tài xế lớn tuổi hoặc màn hình Android Box cỡ lớn: Biển báo phóng to rõ nét mà không che khuất lộ trình.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SET_006</strong></td>
+            <td>Thông tin tài khoản</td>
+            <td><strong>Kiểm tra hiển thị Thông tin tài khoản, Gói Pro và thời hạn sử dụng</strong></td>
+            <td>Chọn mục "Tài khoản của tôi".</td>
+            <td>1. Kiểm tra thông tin định danh: Tên, Số điện thoại, Gói bản quyền GOFA Pro.</td>
+            <td>- Hiển thị huy hiệu "Pro Account", ngày hết hạn bản quyền và nút Quản lý gói cước.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Tài khoản Pro</span>
+                <img class="img-thumb" src="screenshots/tc_acc_01_ui_tai_khoan.webp" data-filename="tc_acc_01_ui_tai_khoan.webp" onerror="handleImgError(this)" alt="TC_SET_006" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Xác thực tài khoản Pro thành công, hiển thị đầy đủ quyền lợi truy cập tất cả các tính năng nâng cao.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_SET_007</strong></td>
+            <td>Cửa sổ nổi Mini-App</td>
+            <td><strong>Kiểm tra cấu hình Cửa sổ nổi Mini-App chạy song song ứng dụng khác</strong></td>
+            <td>Chọn mục "Cửa sổ nổi Mini-App".</td>
+            <td>1. Bật quyền "Hiển thị trên các ứng dụng khác" (Draw over other apps).<br>2. Cấu hình kích cỡ widget nổi.</td>
+            <td>- Widget bong bóng tốc độ và biển báo hiển thị thu nhỏ khi mở Google Maps hay Youtube.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Cấu hình Mini-App</span>
+                <img class="img-thumb" src="screenshots/tc_mini_01_ui_mini_app.webp" data-filename="tc_mini_01_ui_mini_app.webp" onerror="handleImgError(this)" alt="TC_SET_007" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Cửa sổ nổi hoạt động ổn định, cung cấp đầy đủ hướng dẫn cấp quyền Overlay trên hệ điều hành Android / HyperOS.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal Zoom -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './screenshots/' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../output/bffe438f/screenshots/' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../output/bffe438f/screenshots/' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Báo Cáo Kiểm Thử Màn Hình Tìm Kiếm (Search) - Android Auto</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #f1f5f9;
+    color: #334155;
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    transition: all 0.2s;
+  }
+  .btn-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  tr.row-fail td {
+    background: #fff5f5;
+  }
+  tr.row-fail:hover td {
+    background: #fee2e2;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-fail {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 190px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          🔍 Báo Cáo Kiểm Thử Màn Hình Tìm Kiếm & Bàn Phím Ảo (Search)
+          <span class="badge-app">Phân hệ 2</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Kiểm thử tự động màn hình Tìm kiếm, bàn phím ảo QWERTY ô tô, giới hạn ký tự, gọi API tìm kiếm, địa điểm Nhà riêng / Cơ quan, danh sách Gần đây và cuộn Scrollview trên thiết bị: <code>bffe438f</code>
+        </p>
+      </div>
+      <div>
+        <a href="report_master_summary.html" class="btn-back">&larr; Quay lại Dashboard Tổng Hợp</a>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">16 / 16</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">14</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Bug</div>
+        <div class="value">2</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">87.5%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Ảnh Bằng Chứng</div>
+        <div class="value">16 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Bảng Chi Tiết Kết Quả Kiểm Thử Tìm Kiếm (Search)</h3>
+      <span class="badge-app" style="background:#f1f5f9; color:#475569;">AA_Search_001 -> AA_Search_021</span>
+    </div>
+    <p class="section-desc">
+      Đánh giá toàn diện các luồng nghiệp vụ tìm kiếm trên Android Auto. Phát hiện 2 lỗi giao diện cần khắc phục: Cho phép nhập vượt quá 50 ký tự trong ô tìm kiếm (AA_Search_006) và Thiếu nút Xóa nhanh (X) khi ô tìm kiếm có dữ liệu (AA_Search_008).
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 110px;">Mã TC</th>
+            <th style="width: 200px;">Tên Test Case</th>
+            <th style="width: 170px;">Điều kiện tiên quyết</th>
+            <th style="width: 220px;">Các bước thực hiện</th>
+            <th style="width: 250px;">Kết quả kỳ vọng</th>
+            <th style="width: 210px; text-align:center;">Ảnh chụp Android Auto</th>
+            <th style="width: 80px; text-align:center;">Kết quả</th>
+            <th>Ghi chú & Đánh giá</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr class="">
+            <td><strong>AA_Search_001</strong></td>
+            <td><strong>Kiểm tra giao diện màn hình Tìm kiếm</strong></td>
+            <td>Đang ở màn Home Android Auto</td>
+            <td>Nhấn vào icon Tìm kiếm (kính lúp) ở góc trên bên phải màn Home (85%, 9.5%)</td>
+            <td>Hiển thị màn hình Tìm kiếm: Nút Quay lại góc trên bên trái, Ô tìm kiếm với Placeholder 'Bạn muốn đi đâu?', Danh mục địa điểm (Nhà riêng, Cơ quan, Gần đây...)</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_001_002_003_man_tim_kiem.png" alt="AA_Search_001" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_001_002_003_man_tim_kiem.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Giao diện chuẩn theo thiết kế, hiển thị đầy đủ ô tìm kiếm, icon và danh mục địa điểm.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_002</strong></td>
+            <td><strong>Kiểm tra hiển thị trạng thái chưa lưu Nhà riêng/Cơ quan</strong></td>
+            <td>Tài khoản chưa thiết lập địa chỉ Nhà riêng/Cơ quan</td>
+            <td>Quan sát icon và placeholder danh mục</td>
+            <td>Hiển thị trạng thái cài đặt / chưa lưu địa chỉ</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_001_002_003_man_tim_kiem.png" alt="AA_Search_002" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_001_002_003_man_tim_kiem.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Icon và thông tin hướng dẫn thiết lập địa chỉ hiển thị trực quan.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_003</strong></td>
+            <td><strong>Kiểm tra hiển thị trạng thái đã lưu Nhà riêng/Cơ quan</strong></td>
+            <td>Tài khoản đã thiết lập địa chỉ</td>
+            <td>Quan sát các dòng địa chỉ Nhà riêng / Cơ quan</td>
+            <td>Hiển thị tên và chi tiết địa chỉ đã cấu hình</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_001_002_003_man_tim_kiem.png" alt="AA_Search_003" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_001_002_003_man_tim_kiem.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Hiển thị chi tiết địa chỉ đã lưu (ví dụ: Ngõ 341 Đường Trung Văn...).</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_004</strong></td>
+            <td><strong>Kiểm tra chọn nút Quay lại trên màn Tìm kiếm</strong></td>
+            <td>Đang ở màn hình Tìm kiếm</td>
+            <td>Nhấn nút Quay lại (góc trên bên trái: 6%, 8%)</td>
+            <td>Quay về màn hình Home bản đồ chính</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_004_quay_ve_man_home.png" alt="AA_Search_004" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_004_quay_ve_man_home.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Điều hướng quay lại màn hình bản đồ Home xe hơi ngay lập tức.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_005</strong></td>
+            <td><strong>Kiểm tra nhấn vào ô Tìm kiếm mở bàn phím ảo</strong></td>
+            <td>Đang ở màn hình Tìm kiếm</td>
+            <td>Nhấn vào ô Tìm kiếm (50%, 8.5%)</td>
+            <td>Hiển thị bàn phím ảo QWERTY chuẩn Android Auto trên màn hình xe</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_005_hien_thi_ban_phim_ao.png" alt="AA_Search_005" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_005_hien_thi_ban_phim_ao.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Bàn phím ảo ô tô hiển thị toàn màn hình, hỗ trợ gõ nhanh và gợi ý.</td>
+          </tr>
+    
+          <tr class="row-fail">
+            <td><strong>AA_Search_006</strong></td>
+            <td><strong>Kiểm tra giới hạn ký tự nhập liệu (Max 50 ký tự)</strong></td>
+            <td>Đang mở bàn phím ảo tìm kiếm</td>
+            <td>Nhập chuỗi văn bản vượt quá 50 ký tự (lên đến 60 ký tự)</td>
+            <td>Hệ thống chỉ cho phép nhập tối đa 50 ký tự, chặn không cho nhập thêm</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_006_chua_gioi_han_50_ky_tu.png" alt="AA_Search_006" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_006_chua_gioi_han_50_ky_tu.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-fail">FAIL</span>
+            </td>
+            <td><strong style='color:#dc2626;'>FAIL / BUG:</strong> Ứng dụng chưa chặn giới hạn 50 ký tự, cho phép nhập vượt quá lên đến 60 ký tự trong ô tìm kiếm.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_007</strong></td>
+            <td><strong>Kiểm tra nhấn icon Tìm kiếm trên bàn phím ảo</strong></td>
+            <td>Đã nhập chuỗi tìm kiếm trên bàn phím</td>
+            <td>Nhấn icon kính lúp ở góc dưới bàn phím (94%, 92%)</td>
+            <td>Gọi API tìm kiếm và hiển thị danh sách kết quả phù hợp</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_007_009_ket_qua_tim_kiem.png" alt="AA_Search_007" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_007_009_ket_qua_tim_kiem.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Gọi API tìm kiếm mượt mà và trả về danh sách địa điểm tương ứng.</td>
+          </tr>
+    
+          <tr class="row-fail">
+            <td><strong>AA_Search_008</strong></td>
+            <td><strong>Kiểm tra hiển thị nút Xóa (X) khi ô tìm kiếm có text</strong></td>
+            <td>Ô tìm kiếm đã có ký tự</td>
+            <td>Quan sát phía bên phải của ô tìm kiếm</td>
+            <td>Hiển thị nút Xóa (X) để người dùng xóa nhanh toàn bộ chuỗi tìm kiếm</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_008_khong_co_nut_x.png" alt="AA_Search_008" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_008_khong_co_nut_x.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-fail">FAIL</span>
+            </td>
+            <td><strong style='color:#dc2626;'>FAIL / BUG:</strong> Khi ô tìm kiếm có dữ liệu, KHÔNG hiển thị icon X để xóa nhanh chuỗi text.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_009</strong></td>
+            <td><strong>Kiểm tra hiển thị danh sách kết quả tìm kiếm</strong></td>
+            <td>Đã gọi API tìm kiếm</td>
+            <td>Quan sát danh sách kết quả tìm kiếm</td>
+            <td>Danh sách kết quả hiển thị tên địa điểm, khoảng cách và địa chỉ chi tiết</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_007_009_ket_qua_tim_kiem.png" alt="AA_Search_009" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_007_009_ket_qua_tim_kiem.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Danh sách kết quả hiển thị đầy đủ thông tin địa chỉ và khoảng cách.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_010</strong></td>
+            <td><strong>Kiểm tra chọn 1 địa điểm trong danh sách kết quả</strong></td>
+            <td>Đang hiển thị danh sách kết quả tìm kiếm</td>
+            <td>Nhấn chọn địa điểm đầu tiên trong danh sách kết quả (40%, 28%)</td>
+            <td>Điều hướng đến màn hình xem lộ trình (thời gian, khoảng cách, nút Bắt đầu)</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_010_man_hinh_xem_lo_trinh.png" alt="AA_Search_010" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_010_man_hinh_xem_lo_trinh.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Điều hướng chính xác sang màn hình xem lộ trình với bản đồ tổng quan và nút Bắt đầu.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_016</strong></td>
+            <td><strong>Kiểm tra khi chọn địa điểm đã lưu 'Nhà riêng'</strong></td>
+            <td>Đang ở màn hình Tìm kiếm</td>
+            <td>Nhấn vào mục 'Nhà riêng' (hàng 1: 40%, 28%)</td>
+            <td>Điều hướng đến màn hình xem lộ trình với điểm đến là Nhà riêng đã lưu</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_016_lo_trinh_nha_rieng.png" alt="AA_Search_016" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_016_lo_trinh_nha_rieng.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Chuyển thẳng sang lộ trình dẫn đường về Nhà riêng đã thiết lập.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_017</strong></td>
+            <td><strong>Kiểm tra khi chọn địa điểm đã lưu 'Cơ quan'</strong></td>
+            <td>Đang ở màn hình Tìm kiếm</td>
+            <td>Nhấn vào mục 'Cơ quan' (hàng 2: 40%, 49%)</td>
+            <td>Điều hướng đến màn hình xem lộ trình với điểm đến là Cơ quan đã lưu</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_017_lo_trinh_co_quan.png" alt="AA_Search_017" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_017_lo_trinh_co_quan.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Chuyển thẳng sang lộ trình dẫn đường đến Cơ quan đã thiết lập.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_018</strong></td>
+            <td><strong>Kiểm tra danh mục các địa chỉ tìm kiếm Gần đây</strong></td>
+            <td>Đang ở màn hình Tìm kiếm</td>
+            <td>Quan sát danh sách 'Gần đây'</td>
+            <td>Hiển thị các địa chỉ tìm kiếm gần đây với icon đồng hồ và địa chỉ chi tiết</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_018_019_danh_sach_gan_day.png" alt="AA_Search_018" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_018_019_danh_sach_gan_day.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Lịch sử tìm kiếm hiển thị trực quan, sắp xếp theo thời gian mới nhất.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_019</strong></td>
+            <td><strong>Kiểm tra chọn địa điểm trong danh mục Gần đây</strong></td>
+            <td>Đang hiển thị danh sách Gần đây</td>
+            <td>Nhấn chọn 1 địa điểm trong danh sách</td>
+            <td>Điều hướng sang màn xem lộ trình của điểm đã chọn</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_018_019_danh_sach_gan_day.png" alt="AA_Search_019" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_018_019_danh_sach_gan_day.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Tính toán và hiển thị lộ trình nhanh chóng từ lịch sử.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_020</strong></td>
+            <td><strong>Kiểm tra cuộn trang (Scrollview) danh sách Gần đây</strong></td>
+            <td>Danh sách Gần đây có nhiều hơn 1 trang</td>
+            <td>1. Nhấn nút cuộn xuống (5%, 75%)<br>2. Nhấn nút cuộn lên (5%, 24%)</td>
+            <td>Cuộn mượt mà giữa các trang danh sách kết quả</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_020_gan_day_cuon_trang.png" alt="AA_Search_020" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_020_gan_day_cuon_trang.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Nút cuộn trang trên Android Auto phân trang mượt mà, phản hồi lập tức.</td>
+          </tr>
+    
+          <tr class="">
+            <td><strong>AA_Search_021</strong></td>
+            <td><strong>Kiểm tra nút Quay lại từ danh sách tìm kiếm</strong></td>
+            <td>Đang ở danh sách tìm kiếm</td>
+            <td>Nhấn nút Quay lại (6%, 8%)</td>
+            <td>Quay về màn hình Home bản đồ chính</td>
+            <td>
+              <div class="img-box">
+                <span class="device-label">Android Auto</span>
+                <img class="img-thumb" src="AA_Search_021_quay_lai_man_home.png" alt="AA_Search_021" onclick="zoomImage(this.src)" onerror="this.src='bffe438f/AA_Search_021_quay_lai_man_home.png'">
+              </div>
+            </td>
+            <td style="text-align:center;">
+              <span class="status-badge status-pass">PASS</span>
+            </td>
+            <td>Quay lại màn Home bản đồ an toàn và ổn định.</td>
+          </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<div id="modalZoom" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+  function zoomImage(src) {
+    var modal = document.getElementById("modalZoom");
+    var img = document.getElementById("modalImg");
+    img.src = src;
+    modal.style.display = "flex";
+  }
+  function closeModal() {
+    document.getElementById("modalZoom").style.display = "none";
+  }
+  document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") closeModal();
+  });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "run_id": "run_20261013_091453",
+  "run_timestamp": "20261013_091453",
+  "datetime": "2026-10-13 09:14:54",
+  "total_cases": 169,
+  "pass_count": 165,
+  "fail_count": 3,
+  "warn_count": 1,
+  "pass_rate": 97.6,
+  "duration": "17m 15s",
+  "duration_sec": 1035,
+  "images_count": 275,
+  "report_url": "run_20261013_091453/index.html"
+}

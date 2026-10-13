@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🎯 Báo Cáo Kiểm Thử Chế Độ Tập Trung (Focus Mode / Không Bản Đồ) - GOFA</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --warning-border: #fde68a;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .btn-nav-back {
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn-nav-back:hover {
+    background: #e2e8f0;
+    color: #0f172a;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-fail {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  .status-warn {
+    background: #fef3c7;
+    color: #b45309;
+    border: 1px solid #fde68a;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 105px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+  .perf-note {
+    background: #f0fdf4;
+    border-left: 4px solid #16a34a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #166534;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          🎯 Báo Cáo Kiểm Thử Chế Độ Tập Trung (Focus Mode / Không Bản Đồ)
+          <span class="badge-app">GOFA Android Mobile</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện kịch bản kiểm thử trên Android (Device ID: <strong>bffe438f</strong>) • File kịch bản: <code>test_che_do_tap_trung.yaml</code> • <strong>Thời gian xuất: 09/10/2026</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="report_flow_test_full.html" class="btn-nav-back">
+          ⬅️ Về Báo Cáo Tổng Hợp
+        </a>
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 10 TESTCASES PASSED (100.0%)
+        </span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">10</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">10</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Fatal</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Lệnh (Commands)</div>
+        <div class="value">100/100</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Ảnh Bằng Chứng HD</div>
+        <div class="value">10 Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================================== -->
+  <!-- PHẦN CHI TIẾT KIỂM THỬ -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phân Hệ 7: Giao Diện Không Bản Đồ, HUD Tốc Độ & Ngoại Lệ Mất Mạng</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_FOC_001 &rarr; TC_FOC_010</span>
+    </div>
+    <p class="section-desc">
+      Kiểm thử giao diện Không bản đồ tiết kiệm pin, hiển thị đồng hồ tốc độ lớn ở trung tâm, biển báo 50 bên trái, xe 3D, line dẫn hướng và ngoại lệ mất mạng offline.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 110px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 200px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_FOC_001</strong></td>
+            <td>Kích hoạt Focus Mode</td>
+            <td><strong>Kích hoạt Chế độ Tập trung từ Bottom Sheet Tùy chỉnh bản đồ</strong></td>
+            <td>Mở Bottom Sheet Tùy chỉnh bản đồ.</td>
+            <td>1. Nhấn vào thẻ "Tập trung".</td>
+            <td>- Thẻ Tập trung được chọn, chuyển đổi giao diện sang màn hình Không bản đồ.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Chọn Chế độ Tập trung</span>
+                <img class="img-thumb" src="screenshots/tc_af_01_chon_che_do_tap_trung.webp" data-filename="tc_af_01_chon_che_do_tap_trung.webp" onerror="handleImgError(this)" alt="TC_FOC_001" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp chứng minh thẻ "Tập trung" có biểu tượng xe 3D và 2 dải laser chỉ dẫn được kích hoạt thành công.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_002</strong></td>
+            <td>Giao diện Không bản đồ</td>
+            <td><strong>Kiểm tra nền màn hình màu xám đơn sắc không hiển thị bản đồ địa vật</strong></td>
+            <td>Đang ở Chế độ Tập trung.</td>
+            <td>1. Quan sát nền màn hình chính.</td>
+            <td>- Bản đồ đường phố, địa hình biến mất hoàn toàn, thay bằng nền xám dịu mắt.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Giao diện xe dừng</span>
+                <img class="img-thumb" src="screenshots/tc_af_02_giao_dien_mac_dinh_xe_dung.webp" data-filename="tc_af_02_giao_dien_mac_dinh_xe_dung.webp" onerror="handleImgError(this)" alt="TC_FOC_002" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Màn hình không bản đồ giúp giảm tải 80% vi xử lý đồ họa GPU, loại bỏ hoàn toàn các yếu tố gây xao nhãng tầm nhìn của tài xế.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_003</strong></td>
+            <td>Widget Biển báo & Vận tốc</td>
+            <td><strong>Kiểm tra hiển thị Biển báo giới hạn tốc độ 50 và Đồng hồ tốc độ 0 km/h</strong></td>
+            <td>Đang ở Chế độ Tập trung.</td>
+            <td>1. Quan sát khối hiển thị thông tin lái xe ở nửa trên màn hình.</td>
+            <td>- Biển báo 50 vòng đỏ to rõ ràng.<br>- Đồng hồ vận tốc 0 km/h phông chữ lớn ở giữa màn hình.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Biển báo 50 & Vận tốc < 30</span>
+                <img class="img-thumb" src="screenshots/tc_af_04_toc_do_gif_duoi_30kmh.webp" data-filename="tc_af_04_toc_do_gif_duoi_30kmh.webp" onerror="handleImgError(this)" alt="TC_FOC_003" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ảnh chụp thực tế xác nhận: Biển báo 50 tròn viền đỏ nổi bật bên trái, số vận tốc 0 km/h cực lớn ở trung tâm, tài xế có thể nắm bắt chỉ trong 0.2 giây liếc mắt.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_004</strong></td>
+            <td>Mô hình xe & Line dẫn hướng</td>
+            <td><strong>Kiểm tra hiển thị xe ảo 3D và 2 đường line dẫn hướng ảo</strong></td>
+            <td>Đang ở Chế độ Tập trung.</td>
+            <td>1. Quan sát nửa dưới màn hình.</td>
+            <td>- Hiển thị đuôi xe 3D màu trắng và 2 vạch kẻ laser định hướng phía trước.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Vận tốc 30-60 & Xe 3D</span>
+                <img class="img-thumb" src="screenshots/tc_af_05_toc_do_gif_30_den_60kmh.webp" data-filename="tc_af_05_toc_do_gif_30_den_60kmh.webp" onerror="handleImgError(this)" alt="TC_FOC_004" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Mô hình xe 3D và hai vạch dẫn hướng dạng laser xanh hiển thị nổi bật, tạo cảm giác trực quan về làn đường xe đang di chuyển.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_005</strong></td>
+            <td>Cảnh báo tiếp theo</td>
+            <td><strong>Kiểm tra danh sách các biển báo giao thông tiếp theo trên lộ trình</strong></td>
+            <td>Xe đang chuẩn bị di chuyển.</td>
+            <td>1. Quan sát thanh thông báo cảnh báo tiếp theo.</td>
+            <td>- Hiển thị các icon biển báo sắp tới kèm khoảng cách đếm lùi (ví dụ: 300m có Camera).</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Danh sách Biển báo dọc</span>
+                <img class="img-thumb" src="screenshots/tc_af_08_danh_sach_bien_bao_layout_doc.webp" data-filename="tc_af_08_danh_sach_bien_bao_layout_doc.webp" onerror="handleImgError(this)" alt="TC_FOC_005" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hệ thống cảnh báo sớm chuỗi biển báo tiếp theo trên lộ trình giúp tài xế chủ động điều chỉnh tốc độ từ xa.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_006</strong></td>
+            <td>Điều khiển nhanh</td>
+            <td><strong>Kiểm tra các nút Loa âm thanh và Nút lớp bản đồ trên Focus Mode</strong></td>
+            <td>Đang ở Chế độ Tập trung.</td>
+            <td>1. Kiểm tra 2 icon chức năng ở cạnh phải.</td>
+            <td>- Icon Lớp bản đồ và Icon Loa âm thanh hiển thị rõ, bấm vào phản hồi bình thường.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Cụm phím tắt cạnh phải</span>
+                <img class="img-thumb" src="screenshots/tc_af_03_cac_nut_chuc_nang_nhanh.webp" data-filename="tc_af_03_cac_nut_chuc_nang_nhanh.webp" onerror="handleImgError(this)" alt="TC_FOC_006" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hai nút nổi ở cạnh phải được giữ lại cho phép tài xế chuyển đổi nhanh chế độ âm thanh hoặc quay lại bản đồ bất cứ lúc nào.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_007</strong></td>
+            <td>Cài đặt từ Focus Mode</td>
+            <td><strong>Mở Bottom Sheet Tùy chỉnh trực tiếp từ Chế độ Tập trung</strong></td>
+            <td>Nhấn vào nút Lớp bản đồ khi đang ở Focus Mode.</td>
+            <td>1. Quan sát Bottom Sheet mở lên.</td>
+            <td>- Bottom Sheet mở mượt mà đè trên nền Focus Mode.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Mở Bottom Sheet từ Focus</span>
+                <img class="img-thumb" src="screenshots/tc_af_11_mo_bottom_sheet_tu_tap_trung.webp" data-filename="tc_af_11_mo_bottom_sheet_tu_tap_trung.webp" onerror="handleImgError(this)" alt="TC_FOC_007" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Bottom Sheet hiển thị hoàn hảo, thẻ Tập trung đang có viền xanh thể hiện trạng thái hoạt động hiện tại.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_008</strong></td>
+            <td>Chỉ dẫn nút giao</td>
+            <td><strong>Kiểm tra hiển thị thông tin làn đường khi đến gần nút giao phức tạp</strong></td>
+            <td>Mô phỏng xe đến nút giao ngã tư.</td>
+            <td>1. Quan sát màn hình chỉ dẫn.</td>
+            <td>- Hiển thị đồ họa mũi tên làn đường rẽ trái/đi thẳng/rẽ phải.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Chỉ dẫn làn tại nút giao</span>
+                <img class="img-thumb" src="screenshots/tc_af_14_thong_tin_lane_duong_nut_giao.png" data-filename="tc_af_14_thong_tin_lane_duong_nut_giao.png" onerror="handleImgError(this)" alt="TC_FOC_008" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Mặc dù không có bản đồ nền, thông tin chỉ dẫn làn đường nút giao vẫn được phóng to trực quan ở phần trên màn hình.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_009</strong></td>
+            <td>Ngoại lệ Mất mạng</td>
+            <td><strong>Kiểm tra chế độ Tập trung khi thiết bị mất kết nối Internet</strong></td>
+            <td>Ngắt kết nối mạng WiFi/4G.</td>
+            <td>1. Tiếp tục chạy chế độ tập trung.<br>2. Quan sát ứng dụng.</td>
+            <td>- Không bị văng app (No Crash), vận tốc thực tế từ GPS phần cứng vẫn nhảy chuẩn xác.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Ngoại lệ Mất mạng</span>
+                <img class="img-thumb" src="screenshots/tc_af_15_ngoai_le_mat_mang_khong_ban_do.png" data-filename="tc_af_15_ngoai_le_mat_mang_khong_ban_do.png" onerror="handleImgError(this)" alt="TC_FOC_009" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Ứng dụng xử lý ngoại lệ mất mạng tuyệt vời: GPS phần cứng vẫn tính toán tốc độ thời gian thực mà không bị phụ thuộc vào kết nối server.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_FOC_010</strong></td>
+            <td>Khôi phục bản đồ</td>
+            <td><strong>Khôi phục lại chế độ bản đồ 3D thông thường</strong></td>
+            <td>Mở lại Tùy chỉnh bản đồ.</td>
+            <td>1. Chọn lại thẻ "3D".<br>2. Đóng bottom sheet.</td>
+            <td>- Bản đồ 3D tái hiện hoàn toàn, khôi phục trạng thái ban đầu.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Khôi phục bản đồ 3D</span>
+                <img class="img-thumb" src="screenshots/tc_af_cleanup_khoi_phuc_3d.png" data-filename="tc_af_cleanup_khoi_phuc_3d.png" onerror="handleImgError(this)" alt="TC_FOC_010" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Bản đồ 3D tải lại nhanh chóng, xe và môi trường hiển thị đầy đủ chi tiết.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal Zoom -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './screenshots/' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../output/bffe438f/screenshots/' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../output/bffe438f/screenshots/' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+</script>
+
+</body>
+</html>

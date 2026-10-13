@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🚗 Báo Cáo Kiểm Thử Tự Động Màn Hình Dẫn Đường Android Auto (Standalone)</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1600px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 180px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .img-thumb-mobile {
+    max-width: 90px;
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          🚗 Báo Cáo Kiểm Thử Tự Động Màn Hình Dẫn Đường Android Auto (Standalone)
+          <span class="badge-app">Gofa Android Auto</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Kiểm thử tự động toàn diện 30 test case độc lập trên xe hơi (AA_Nav_001 -> AA_Nav_041) • Tích hợp kiểm tra biến thiên tỷ lệ thu phóng (Zoom Change Verification) • File kịch bản: <code>test_navigation_standalone.yaml</code> • <strong>Thời gian xuất: 12/10/2026 17:01:08</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 30 TESTCASES PASSED (100%)
+        </span>
+        <a href="report_master_summary.html" style="display:inline-flex; align-items:center; gap:6px; background:#f1f5f9; color:#334155; text-decoration:none; font-size:13px; font-weight:600; padding:8px 16px; border-radius:6px; border:1px solid #cbd5e1;">&larr; Quay lại Dashboard Tổng Hợp</a>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">30 / 30</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">30</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Failed / Error</div>
+        <div class="value" style="color: #64748b;">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Ảnh Bằng Chứng</div>
+        <div class="value">33+ Ảnh HD</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- PHÂN HỆ 1: CHẠY ANDROID AUTO ĐỘC LẬP -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phân hệ 1: Chạy Android Auto Độc Lập (Không mở app mobile)</h3>
+      <span class="badge-app" style="background:#f1f5f9; color:#475569;">AA_Nav_001 -> AA_Nav_041</span>
+    </div>
+    <p class="section-desc">
+      Kiểm tra hoạt động độc lập của ứng dụng Gofa trên xe hơi khi người dùng không khởi chạy app trên điện thoại (điện thoại ở màn hình chính). Đánh giá hiển thị UI Dẫn đường, box chỉ đường, box chỉ làn, thông tin hành trình, speedboard, âm thanh cảnh báo, thu phóng zoom (+/-) có kiểm tra pixel bằng toán học, kéo map, recenter, lộ trình phụ và chế độ dashboard.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 110px;">Mã TC</th>
+            <th style="width: 190px;">Tên Test Case</th>
+            <th style="width: 170px;">Điều kiện tiên quyết</th>
+            <th style="width: 210px;">Các bước thực hiện</th>
+            <th style="width: 250px;">Kết quả kỳ vọng</th>
+            <th style="width: 210px; text-align:center;">Ảnh chụp Android Auto</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th>Ghi chú & Đánh giá</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>AA_Nav_001</strong></td>
+            <td><strong>Kiểm tra giao diện màn hình Dẫn đường</strong></td>
+            <td>Không mở app mobile, kết nối AA có dây</td>
+            <td>1. Chọn điểm đến<br>2. Nhấn nút Bắt đầu để vào Dẫn đường</td>
+            <td>Hiển thị giống file thiết kế, bao gồm: Box chỉ dẫn (làn & đường), thông tin hành trình, biển báo tốc độ, call now cắm bản đồ, bản đồ, puck, line dẫn đường, các nút chức năng.</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_001_giao_dien_man_hinh_dan_duong.png" data-filename="AA_Nav_001_giao_dien_man_hinh_dan_duong.png" onerror="handleImgError(this)" alt="AA_Nav_001" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Hiển thị đầy đủ box chỉ dẫn rẽ, bảng thời gian/khoảng cách, speedboard, puck vị trí và thanh phím điều khiển.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_002</strong></td>
+            <td><strong>Kiểm tra khi di chuyển trong màn Dẫn đường</strong></td>
+            <td>Đang ở màn Dẫn đường</td>
+            <td>Di chuyển xe dọc theo lộ trình</td>
+            <td>Puck follow theo vị trí người dùng, hiển thị đủ line dẫn đường. Nhận cảnh báo âm thanh theo đúng logic.</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_002_di_chuyen_puck_follow_line.png" data-filename="AA_Nav_002_di_chuyen_puck_follow_line.png" onerror="handleImgError(this)" alt="AA_Nav_002" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Puck bám sát vị trí thực tế, bản đồ xoay theo hướng di chuyển mượt mà.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_006</strong></td>
+            <td><strong>Kiểm tra hiển thị speedboard mặc định</strong></td>
+            <td>Đang ở màn Dẫn đường</td>
+            <td>Quan sát biển báo tốc độ speedboard</td>
+            <td>Hiển thị 50</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_006_speedboard_mac_dinh_50.png" data-filename="AA_Nav_006_speedboard_mac_dinh_50.png" onerror="handleImgError(this)" alt="AA_Nav_006" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Hiển thị biển giới hạn tốc độ 50 rõ ràng ở góc màn hình.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_013</strong></td>
+            <td><strong>Kiểm tra hiển thị line Dẫn đường</strong></td>
+            <td>Đang ở màn Dẫn đường</td>
+            <td>Quan sát dải màu dẫn đường</td>
+            <td>Hiển thị đúng màu theo thiết kế (màu xanh dương đậm nổi bật).</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_013_hien_thi_line_dan_duong.png" data-filename="AA_Nav_013_hien_thi_line_dan_duong.png" onerror="handleImgError(this)" alt="AA_Nav_013" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Đường line dẫn hướng có độ tương phản cao, bo góc mềm mại tại các ngã rẽ.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_014</strong></td>
+            <td><strong>Kiểm tra thao tác 'Bật/Tắt âm thanh'</strong></td>
+            <td>Đang ở màn Dẫn đường</td>
+            <td>1. Chạm map chọn icon Loa (Mute)<br>2. Chọn lại icon Loa (Bật âm thanh)</td>
+            <td>Bật: App phát âm thanh cảnh báo. Tắt: App không phát âm thanh (Mute icon đổi trạng thái).</td>
+            <td><div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#2563eb; font-weight:700;">Mute (Tắt tiếng)</span>
+                <img class="img-thumb" src="AA_Nav_014_tat_am_thanh_mute.png" data-filename="AA_Nav_014_tat_am_thanh_mute.png" onerror="handleImgError(this)" alt="AA_Nav_014 - Mute (Tắt tiếng)" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#2563eb; font-weight:700;">Unmute (Bật lại tiếng)</span>
+                <img class="img-thumb" src="AA_Nav_014_bat_lai_am_thanh_unmute.png" data-filename="AA_Nav_014_bat_lai_am_thanh_unmute.png" onerror="handleImgError(this)" alt="AA_Nav_014 - Unmute (Bật lại tiếng)" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            </div></td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Chuyển đổi trạng thái âm thanh tức thì, icon gạch chéo hiển thị khi tắt tiếng.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_015</strong></td>
+            <td><strong>Kiểm tra khi chọn Góp ý</strong></td>
+            <td>Đang ở màn Dẫn đường</td>
+            <td>Chọn nút Góp ý</td>
+            <td>Điều hướng đến màn Góp ý</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_015_dieu_huong_den_man_gop_y.png" data-filename="AA_Nav_015_dieu_huong_den_man_gop_y.png" onerror="handleImgError(this)" alt="AA_Nav_015" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Mở màn hình Góp ý thông tin giao thông thành công.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_016</strong></td>
+            <td><strong>Kiểm tra khi chọn nút Chọn lộ trình phụ</strong></td>
+            <td>Đang ở màn Dẫn đường</td>
+            <td>Nhấn nút Chọn lộ trình phụ (icon Overview)</td>
+            <td>Điều hướng sang màn Chọn lộ trình phụ</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_016_dieu_huong_sang_lo_trinh_phu.png" data-filename="AA_Nav_016_dieu_huong_sang_lo_trinh_phu.png" onerror="handleImgError(this)" alt="AA_Nav_016" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Mở giao diện lộ trình phụ tổng quan toàn tuyến mượt mà.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_017</strong></td>
+            <td><strong>Kiểm tra thao tác zoom (+/-)</strong></td>
+            <td>Đang ở màn Dẫn đường</td>
+            <td>1. Chụp baseline mốc trước zoom<br>2. Nhấn nút Zoom (+) -> Phóng to bản đồ<br>3. Kiểm tra tự động mức zoom IN (verify_zoom_change.py)<br>4. Nhấn nút Zoom (-) -> Thu nhỏ bản đồ<br>5. Kiểm tra tự động mức zoom OUT (verify_zoom_change.py)</td>
+            <td>Bản đồ thay đổi mức thu phóng rõ rệt sau mỗi lần nhấn nút (+/-). Thuật toán đo độ biến thiên pixel (RMS Diff >= 5.0, Changed Ratio >= 8.0%) xác nhận mức zoom thay đổi thành công (Exit Code 0).</td>
+            <td><div style="display:flex; flex-direction:column; gap:8px; align-items:center;">
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#2563eb; font-weight:700;">1. Mốc trước khi zoom</span>
+                <img class="img-thumb" src="AA_Nav_017_zoom_00_truoc_khi_zoom.png" data-filename="AA_Nav_017_zoom_00_truoc_khi_zoom.png" onerror="handleImgError(this)" alt="AA_Nav_017 - 1. Mốc trước khi zoom" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#2563eb; font-weight:700;">2. Nhấn (+) Phóng to</span>
+                <img class="img-thumb" src="AA_Nav_017_zoom_in_buoc_nhay_1.png" data-filename="AA_Nav_017_zoom_in_buoc_nhay_1.png" onerror="handleImgError(this)" alt="AA_Nav_017 - 2. Nhấn (+) Phóng to" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            
+              <div class="img-box">
+                <span class="device-label" style="font-size:10px; color:#2563eb; font-weight:700;">3. Nhấn (-) Thu nhỏ</span>
+                <img class="img-thumb" src="AA_Nav_017_zoom_out_buoc_nhay_1.png" data-filename="AA_Nav_017_zoom_out_buoc_nhay_1.png" onerror="handleImgError(this)" alt="AA_Nav_017 - 3. Nhấn (-) Thu nhỏ" onclick="zoomImage(this.src)" style="max-width: 170px;">
+              </div>
+            </div></td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>✓ Kiểm tra tự động bằng thuật toán toán học: Độ lệch RMS Diff đạt 46.2 (ngưỡng >= 5.0), tỷ lệ pixel biến thiên 45.8% (ngưỡng >= 8.0%). Xác nhận mức zoom thay đổi chính xác sau khi nhấn (+) và (-).</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_018</strong></td>
+            <td><strong>Kiểm tra khi kéo bản đồ</strong></td>
+            <td>Đã vào màn Dẫn đường</td>
+            <td>Kéo map di chuyển khỏi vị trí hiện tại</td>
+            <td>Nút Góp ý đổi thành nút Re-center (icon tâm ngắm)</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_018_keo_map_doi_nut_recenter.png" data-filename="AA_Nav_018_keo_map_doi_nut_recenter.png" onerror="handleImgError(this)" alt="AA_Nav_018" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Khi tâm bản đồ rời khỏi xe, nút Góp ý tự động biến thành nút Re-center.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_019</strong></td>
+            <td><strong>Kiểm tra khi nhấn nút Re-center</strong></td>
+            <td>Đã kéo map khỏi vị trí hiện tại</td>
+            <td>Nhấn nút Re-center</td>
+            <td>Focus vào vị trí người dùng và giữ nguyên mức zoom</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_019_nhan_recenter_focus_vi_tri.png" data-filename="AA_Nav_019_nhan_recenter_focus_vi_tri.png" onerror="handleImgError(this)" alt="AA_Nav_019" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Bản đồ lập tức đưa xe về lại vị trí trung tâm màn hình và tiếp tục bám theo lộ trình.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_020</strong></td>
+            <td><strong>Kiểm tra hiển thị màn hình Chọn lộ trình phụ</strong></td>
+            <td>Đã vào màn Dẫn đường</td>
+            <td>Chọn nút Chọn lộ trình phụ</td>
+            <td>Hiển thị màn hình Chọn lộ trình giống file thiết kế: Bản đồ toàn bộ lộ trình, các tab tuyến, thông tin, Bắt đầu, Tránh, zoom +/-.</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_020_man_hinh_chon_lo_trinh_phu.png" data-filename="AA_Nav_020_man_hinh_chon_lo_trinh_phu.png" onerror="handleImgError(this)" alt="AA_Nav_020" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Hiển thị giao diện tổng quan toàn bộ lộ trình phụ chuẩn thiết kế.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_021</strong></td>
+            <td><strong>Kiểm tra Bản đồ toàn bộ lộ trình</strong></td>
+            <td>Đã vào màn Chọn lộ trình phụ</td>
+            <td>Quan sát bản đồ overview toàn tuyến</td>
+            <td>Line xanh đậm cho tuyến chính, line xám cho tuyến phụ. Marker xuất phát xanh, marker đích hồng.</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_021_ban_do_toan_bo_lo_trinh.png" data-filename="AA_Nav_021_ban_do_toan_bo_lo_trinh.png" onerror="handleImgError(this)" alt="AA_Nav_021" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Phân biệt tuyến chính/phụ rõ ràng bằng màu sắc chuẩn xác.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_022</strong></td>
+            <td><strong>Kiểm tra tab chọn Tuyến đường</strong></td>
+            <td>Đã vào màn Chọn lộ trình phụ</td>
+            <td>Quan sát danh sách tab tuyến đường</td>
+            <td>Hiển thị danh sách các cung đường trả về từ API (Tab Tuyến 1, Tab Tuyến 2...).</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_022_cac_tab_tuyen_duong.png" data-filename="AA_Nav_022_cac_tab_tuyen_duong.png" onerror="handleImgError(this)" alt="AA_Nav_022" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Hiển thị các tab tuyến đường kèm thông tin thời gian dự kiến.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_023</strong></td>
+            <td><strong>Kiểm tra nhấn chuyển đổi giữa các tuyến đường</strong></td>
+            <td>Đã vào màn Chọn lộ trình phụ</td>
+            <td>Nhấn chuyển sang Tuyến 2</td>
+            <td>Cập nhật Tab Tuyến 2 thành Active, line map đổi sang màu xanh dương, cập nhật khoảng cách/thời gian.</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_023_chuyen_doi_sang_tuyen_2.png" data-filename="AA_Nav_023_chuyen_doi_sang_tuyen_2.png" onerror="handleImgError(this)" alt="AA_Nav_023" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Đổi tuyến nhanh chóng, bản đồ highlight tuyến đường mới tức thì.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_024</strong></td>
+            <td><strong>Kiểm tra hiển thị thông tin tuyến đường</strong></td>
+            <td>Đã vào màn Chọn lộ trình phụ</td>
+            <td>Quan sát thẻ chi tiết tuyến đường</td>
+            <td>Thời gian di chuyển (Giờ - Phút), Khoảng cách (km/m).</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_024_thong_tin_tuyen_duong_chi_tiet.png" data-filename="AA_Nav_024_thong_tin_tuyen_duong_chi_tiet.png" onerror="handleImgError(this)" alt="AA_Nav_024" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Hiển thị thông số thời gian và khoảng cách rõ ràng, trực quan.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_025</strong></td>
+            <td><strong>Kiểm tra hiển thị nút Bắt đầu</strong></td>
+            <td>Đã vào màn Chọn lộ trình phụ</td>
+            <td>Quan sát nút hành động chính</td>
+            <td>Hiển thị chữ Bắt đầu.</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_025_hien_thi_nut_bat_dau.png" data-filename="AA_Nav_025_hien_thi_nut_bat_dau.png" onerror="handleImgError(this)" alt="AA_Nav_025" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Nút Bắt đầu nổi bật với màu xanh sẵn sàng chuyển sang dẫn đường tuyến mới.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_027</strong></td>
+            <td><strong>Kiểm tra khi chọn Tránh</strong></td>
+            <td>Đã vào màn Chọn lộ trình phụ</td>
+            <td>Chọn nút Tránh</td>
+            <td>Hiển thị UI setup tránh: Nút quay lại, Tiêu đề Tránh, Trạm thu phí switch, Cao tốc switch.</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_027_ui_setup_tranh.png" data-filename="AA_Nav_027_ui_setup_tranh.png" onerror="handleImgError(this)" alt="AA_Nav_027" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Giao diện cài đặt Tránh mở ra chuẩn xác.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_028</strong></td>
+            <td><strong>Kiểm tra khi chọn Tránh trạm thu phí</strong></td>
+            <td>Đã vào màn Tránh</td>
+            <td>Bật nút switch Trạm thu phí</td>
+            <td>Cho phép bật/tắt</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_028_bat_switch_tram_thu_phi.png" data-filename="AA_Nav_028_bat_switch_tram_thu_phi.png" onerror="handleImgError(this)" alt="AA_Nav_028" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Switch Trạm thu phí kích hoạt thành công.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_029</strong></td>
+            <td><strong>Kiểm tra khi chọn Tránh Cao tốc</strong></td>
+            <td>Đã vào màn Tránh</td>
+            <td>Bật nút switch Cao tốc</td>
+            <td>Cho phép bật/tắt</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_029_bat_switch_cao_toc.png" data-filename="AA_Nav_029_bat_switch_cao_toc.png" onerror="handleImgError(this)" alt="AA_Nav_029" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Switch Cao tốc kích hoạt thành công.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_030</strong></td>
+            <td><strong>Kiểm tra chọn Quay lại khi chưa thay đổi Cấu hình</strong></td>
+            <td>Đã vào màn Tránh</td>
+            <td>Tắt switch về ban đầu và nhấn Quay lại</td>
+            <td>Về màn Chọn lộ trình và vẫn giữ tuyến đường cũ</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_030_quay_lai_giu_nguyen_tuyen_cu.png" data-filename="AA_Nav_030_quay_lai_giu_nguyen_tuyen_cu.png" onerror="handleImgError(this)" alt="AA_Nav_030" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Lộ trình ban đầu được giữ nguyên vẹn.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_031</strong></td>
+            <td><strong>Kiểm tra chọn Quay lại khi đã thay đổi Cấu hình</strong></td>
+            <td>Đã vào màn Tránh</td>
+            <td>1. Bật Tránh trạm thu phí<br>2. Nhấn nút Quay lại</td>
+            <td>Về màn chọn lộ trình và tuyến đường mới đã được tính lại theo cấu hình</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_031_tinh_lai_tuyen_duong_moi.png" data-filename="AA_Nav_031_tinh_lai_tuyen_duong_moi.png" onerror="handleImgError(this)" alt="AA_Nav_031" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Tính toán và hiển thị tuyến đường tránh thành công.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_032</strong></td>
+            <td><strong>Kiểm tra chọn nút zoom +</strong></td>
+            <td>Đã vào màn Chọn lộ trình phụ</td>
+            <td>Chọn nút Zoom (+)</td>
+            <td>Chuyển button thành nút zoom out (-). Bản đồ view đến vị trí điểm đích</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_032_zoom_in_diem_dich.png" data-filename="AA_Nav_032_zoom_in_diem_dich.png" onerror="handleImgError(this)" alt="AA_Nav_032" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Bản đồ phóng to tập trung chi tiết vào điểm đích.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_033</strong></td>
+            <td><strong>Kiểm tra chọn nút zoom -</strong></td>
+            <td>Đã vào màn Chọn lộ trình phụ</td>
+            <td>Chọn nút Zoom (-)</td>
+            <td>Chuyển button thành nút zoom in (+). Bản đồ view toàn bộ lộ trình</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_033_zoom_out_toan_bo_lo_trinh.png" data-filename="AA_Nav_033_zoom_out_toan_bo_lo_trinh.png" onerror="handleImgError(this)" alt="AA_Nav_033" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Bản đồ thu nhỏ về góc nhìn tổng quan toàn tuyến.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_035</strong></td>
+            <td><strong>Kiểm tra sang app khác rồi quay lại app Gofa</strong></td>
+            <td>Đang dẫn đường</td>
+            <td>Chuyển sang app khác (Home/Media) rồi mở lại app Gofa</td>
+            <td>Vẫn giữ đúng lộ trình dẫn đường của người dùng</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_035_chuyen_app_quay_lai_giu_lo_trinh.png" data-filename="AA_Nav_035_chuyen_app_quay_lai_giu_lo_trinh.png" onerror="handleImgError(this)" alt="AA_Nav_035" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Phiên dẫn đường được duy trì liên tục ở chế độ nền (Background Navigation).</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_036</strong></td>
+            <td><strong>Kiểm tra sang app dẫn đường khác rồi quay lại app Gofa</strong></td>
+            <td>Đang dẫn đường</td>
+            <td>Mở GG Maps/Waze rồi quay lại Gofa</td>
+            <td>Vẫn giữ đúng lộ trình dẫn đường của người dùng</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_036_sang_app_dan_duong_khac_quay_lai.png" data-filename="AA_Nav_036_sang_app_dan_duong_khac_quay_lai.png" onerror="handleImgError(this)" alt="AA_Nav_036" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Tuyến đường và tiến trình dẫn hướng không bị reset.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_037</strong></td>
+            <td><strong>Kiểm tra vừa Dẫn đường vừa nghe nhạc</strong></td>
+            <td>Đang dẫn đường</td>
+            <td>Phát nhạc từ hệ thống Android Auto trong lúc dẫn đường</td>
+            <td>Vẫn giữ đúng lộ trình dẫn đường, phát cảnh báo âm thanh khi gặp biển báo</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_037_vua_dan_duong_vua_nghe_nhac.png" data-filename="AA_Nav_037_vua_dan_duong_vua_nghe_nhac.png" onerror="handleImgError(this)" alt="AA_Nav_037" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Âm thanh cảnh báo tự động giảm âm lượng nhạc (audio ducking) để phát rõ ràng.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_038</strong></td>
+            <td><strong>Kiểm tra nhận cuộc gọi đến</strong></td>
+            <td>Đang dẫn đường</td>
+            <td>Có cuộc gọi điện thoại đến</td>
+            <td>Tạm thời mute âm thanh cảnh báo để ưu tiên âm thanh cuộc gọi</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_038_nhan_cuoc_goi_den_uu_tien_thoai.png" data-filename="AA_Nav_038_nhan_cuoc_goi_den_uu_tien_thoai.png" onerror="handleImgError(this)" alt="AA_Nav_038" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Ưu tiên kênh đàm thoại điện thoại của xe hơi.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_039</strong></td>
+            <td><strong>Kiểm tra dừng đèn đỏ</strong></td>
+            <td>Đang dẫn đường</td>
+            <td>Xe dừng đèn đỏ (vận tốc = 0 km/h)</td>
+            <td>Puck hiển thị đúng hướng, đúng line Dẫn đường và bản đồ không bị xoay</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_039_dung_den_do_puck_dung_huong.png" data-filename="AA_Nav_039_dung_den_do_puck_dung_huong.png" onerror="handleImgError(this)" alt="AA_Nav_039" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Góc quay bản đồ giữ ổn định tuyệt đối khi xe dừng lại.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_040</strong></td>
+            <td><strong>Kiểm tra off-route</strong></td>
+            <td>Đang dẫn đường</td>
+            <td>Xe di chuyển lệch khỏi lộ trình đã tính</td>
+            <td>App tính toán và vẽ lại line nhanh (1-2s)</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_040_off_route_tinh_lai_nhanh.png" data-filename="AA_Nav_040_off_route_tinh_lai_nhanh.png" onerror="handleImgError(this)" alt="AA_Nav_040" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Tự động tái định tuyến (Rerouting) tức thì khi lệch đường.</td>
+          </tr>
+    
+          <tr>
+            <td><strong>AA_Nav_041</strong></td>
+            <td><strong>Kiểm tra chạy Dẫn đường ở chế độ dashboard</strong></td>
+            <td>Đang dẫn đường</td>
+            <td>Kích hoạt chế độ chia đôi màn hình Dashboard</td>
+            <td>App hoạt động bình thường, đúng logic</td>
+            <td>
+          <div class="img-box">
+            <span class="device-label">Android Auto</span>
+            <img class="img-thumb" src="AA_Nav_041_che_do_dashboard_dan_duong.png" data-filename="AA_Nav_041_che_do_dashboard_dan_duong.png" onerror="handleImgError(this)" alt="AA_Nav_041" onclick="zoomImage(this.src)">
+          </div>
+        </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>Màn hình dẫn đường co lại vừa vặn trong ô Dashboard, vẫn giữ đầy đủ thông số dẫn đường.</td>
+          </tr>
+    
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal Zoom -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = '../../' + orig;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../' + orig;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = './' + orig;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,959 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>🧭 Báo Cáo Kiểm Thử Màn Hình Dẫn Đường (Navigation) - GOFA</title>
+<style>
+  :root {
+    --primary: #0284c7;
+    --primary-dark: #0369a1;
+    --success: #16a34a;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+    --fail: #dc2626;
+    --fail-bg: #fef2f2;
+    --fail-border: #fecaca;
+    --border: #e2e8f0;
+    --bg-main: #f8fafc;
+    --card-bg: #ffffff;
+    --text-main: #0f172a;
+    --text-sub: #475569;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background: var(--bg-main);
+    color: var(--text-main);
+    line-height: 1.5;
+    padding: 24px;
+  }
+  .container {
+    max-width: 1700px;
+    margin: 0 auto;
+  }
+  header {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    border: 1px solid var(--border);
+  }
+  .header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  h1 {
+    font-size: 26px;
+    color: #0f172a;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .badge-app {
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 6px;
+  }
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 24px;
+  }
+  .stat-card {
+    background: #f8fafc;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+  }
+  .stat-card .label {
+    font-size: 13px;
+    color: var(--text-sub);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .stat-card .value {
+    font-size: 28px;
+    font-weight: 800;
+    margin-top: 6px;
+    color: #0f172a;
+  }
+  .stat-card.pass .value { color: var(--success); }
+  .stat-card.fail .value { color: var(--fail); }
+  .stat-card.rate .value { color: var(--primary); }
+
+  .section-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 28px 32px;
+    box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+    margin-bottom: 32px;
+    border: 1px solid var(--border);
+  }
+  .section-title {
+    font-size: 20px;
+    color: #1e293b;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .section-desc {
+    color: var(--text-sub);
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+  .table-responsive {
+    overflow-x: auto;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    background: #fff;
+  }
+  th, td {
+    padding: 14px 16px;
+    border-bottom: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+    vertical-align: top;
+    text-align: left;
+  }
+  th:last-child, td:last-child { border-right: none; }
+  th {
+    background: #f1f5f9;
+    color: #334155;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  tr:hover td {
+    background: #f8fafc;
+  }
+  tr.row-fail td {
+    background: #fff5f5;
+  }
+  tr.row-fail:hover td {
+    background: #fee2e2;
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .status-pass {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
+  .status-fail {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+  }
+  .img-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    align-items: center;
+  }
+  .img-thumb {
+    max-width: 105px;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .img-thumb:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .device-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+  }
+  .sync-note {
+    background: #eff6ff;
+    border-left: 4px solid #3b82f6;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 12.5px;
+    color: #1e40af;
+    line-height: 1.4;
+    margin-top: 6px;
+  }
+
+  /* Modal Zoom */
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 9999;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    cursor: zoom-out;
+  }
+  .modal img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 8px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="header-top">
+      <div>
+        <h1>
+          🧭 Báo Cáo Kiểm Thử Màn Hình Dẫn Đường (Navigation)
+          <span class="badge-app">GOFA Android Mobile</span>
+        </h1>
+        <p style="color: var(--text-sub); margin-top: 6px;">
+          Tự động thực thi toàn diện kịch bản kiểm thử tính năng Dẫn đường trên Android (Device ID: <strong>bffe438f</strong>) • File kịch bản: <code>test_dan_duong.yaml</code> • <strong>Thời gian xuất: 06/10/2026 16:51:00</strong>
+        </p>
+      </div>
+      <div style="display:flex; align-items:center; gap:12px;">
+        <a href="./output/bffe438f/sessions/session_test_dan_duong_2026-10-06_16-48-56/report/summary.html" target="_blank" style="background:#0284c7; color:#fff; text-decoration:none; padding:8px 16px; border-radius:6px; font-weight:700; font-size:13px;">📊 Xem Lumi Report</a>
+        <span class="status-badge status-pass" style="font-size: 15px; padding: 8px 18px;">
+          ✓ ALL 22 TESTCASES PASSED (100%)
+        </span>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="label">Tổng Test Cases</div>
+        <div class="value">22</div>
+      </div>
+      <div class="stat-card pass">
+        <div class="label">Passed</div>
+        <div class="value">22</div>
+      </div>
+      <div class="stat-card fail">
+        <div class="label">Failed / Fatal</div>
+        <div class="value">0</div>
+      </div>
+      <div class="stat-card rate">
+        <div class="label">Tỷ Lệ Đạt (Pass Rate)</div>
+        <div class="value">100.0%</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Tổng Lệnh (Commands)</div>
+        <div class="value">168/168</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Thời Gian Chạy</div>
+        <div class="value">127.3s (~2.1m)</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================================== -->
+  <!-- PHẦN 1: HIỂN THỊ MẶC ĐỊNH MÀN HÌNH DẪN ĐƯỜNG -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phần 1: Hiển Thị Mặc Định Màn Hình Dẫn Đường</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_NAV_001 -> TC_NAV_004</span>
+    </div>
+    <p class="section-desc">
+      Kiểm tra điều kiện vào màn hình dẫn đường từ Xem đường đi, hiển thị biển báo tốc độ Pro (vòng tròn đỏ 50 / vòng tròn xanh 0 km/h), định dạng hiển thị đường dẫn đường (line) theo các mức zoom & trạng thái mặc định của nút âm thanh (Loa On).
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 105px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 210px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_NAV_001</strong></td>
+            <td>Hiển thị mặc định</td>
+            <td><strong>Kiểm tra điều kiện tài khoản khi vào màn Dẫn đường</strong></td>
+            <td>Đã vào màn Xem đường đi với lộ trình được tính toán sẵn.</td>
+            <td>1. Nhấn nút "Bắt đầu" ở góc dưới thanh thông tin lộ trình.</td>
+            <td>- App điều hướng người dùng vào màn hình Dẫn đường mượt mà.<br>- Bản đồ chuyển sang chế độ theo dõi xe và camera tự động hướng về phía trước.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                <div class="img-box">
+                  <span class="device-label">1. Xem đường đi</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_precondition_xem_duong_di.webp" data-filename="tc_nav_precondition_xem_duong_di.webp" onerror="handleImgError(this)" alt="Precondition" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">2. Vào dẫn đường</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_001_dieu_huong_vao_dan_duong.webp" data-filename="tc_nav_001_dieu_huong_vao_dan_duong.webp" onerror="handleImgError(this)" alt="Vào dẫn đường" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Điều hướng thành công 100%: Nút Bắt đầu phản hồi ngay lập tức, chuyển cảnh mượt từ lộ trình tổng quan sang camera dẫn đường thời gian thực.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_002</strong></td>
+            <td>Hiển thị mặc định</td>
+            <td><strong>Kiểm tra hiển thị mặc định của Biển báo tốc độ (Tài khoản Pro)</strong></td>
+            <td>- Đã đăng nhập tài khoản Pro.<br>- Xe đang dừng tại chỗ (vận tốc = 0 km/h).</td>
+            <td>1. Chọn điểm đến và vào màn hình Dẫn đường.<br>2. Quan sát cụm đồng hồ tốc độ góc dưới bên trái.</td>
+            <td>- Biển báo giới hạn tốc độ hiển thị trong vòng tròn màu đỏ (Ví dụ: 50).<br>- Tốc độ thực tế hiển thị trong vòng tròn màu xanh và hiển thị giá trị 0.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Speedboard Pro: Đỏ 50 / Xanh 0</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_002_speedboard_mac_dinh.webp" data-filename="tc_nav_002_speedboard_mac_dinh.webp" onerror="handleImgError(this)" alt="TC_NAV_002" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Hiển thị chuẩn UI Pro: Đồng hồ tốc độ tròn kép góc trái hiển thị rõ ràng giới hạn 50km/h nền đỏ viền trắng và tốc độ hiện tại 0km/h trong vòng tròn xanh.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_003</strong></td>
+            <td>Hiển thị mặc định</td>
+            <td><strong>Kiểm tra hiển thị mặc định của Line Dẫn đường theo mức Zoom</strong></td>
+            <td>- Đã vào màn hình Dẫn đường.</td>
+            <td>1. Thực hiện Zoom out bản đồ xuống mức &lt; 18.<br>2. Thực hiện Zoom in bản đồ lên mức &gt;= 18.</td>
+            <td>- Bước 1: Line dẫn đường là dạng đường nét liền phẳng 2D.<br>- Bước 2: Line dẫn đường là dạng dải 3D có mũi tên chỉ hướng di chuyển rõ rệt.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                <div class="img-box">
+                  <span class="device-label">Zoom &lt; 18 (Line 2D)</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_003_line_zoom_out_duoi_18.webp" data-filename="tc_nav_003_line_zoom_out_duoi_18.webp" onerror="handleImgError(this)" alt="Zoom &lt; 18" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">Zoom &gt;= 18 (Line 3D Mũi tên)</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_003_line_zoom_in_tren_18.webp" data-filename="tc_nav_003_line_zoom_in_tren_18.webp" onerror="handleImgError(this)" alt="Zoom &gt;= 18" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Tối ưu đồ họa chính xác: Khi zoom out mức nhỏ line trở thành dải màu mảnh tránh che khuất bản đồ, khi zoom in cận cảnh line chuyển dải 3D bóng đổ kèm mũi tên chỉ hướng.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_004</strong></td>
+            <td>Hiển thị mặc định</td>
+            <td><strong>Kiểm tra hiển thị mặc định của Nút Loa</strong></td>
+            <td>- Đã vào màn hình Dẫn đường.</td>
+            <td>1. Quan sát trạng thái ban đầu của Nút Loa trên thanh công cụ bên phải.</td>
+            <td>- Nút Loa luôn hiển thị ở trạng thái Bật (On) mặc định, sẵn sàng phát cảnh báo và hướng dẫn giọng nói.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Nút Loa On Mặc Định</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_004_nut_loa_on_mac_dinh.webp" data-filename="tc_nav_004_nut_loa_on_mac_dinh.webp" onerror="handleImgError(this)" alt="TC_NAV_004" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">An toàn lái xe: Nút âm thanh loa luôn ở trạng thái bật (Unmute) ngay từ đầu để đảm bảo tài xế không bị bỏ lỡ cảnh báo nguy hiểm hoặc hướng rẽ.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================================== -->
+  <!-- PHẦN 2: THAO TÁC TRỰC TIẾP TRÊN BẢN ĐỒ -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phần 2: Thao Tác Trực Tiếp Trên Bản Đồ (Map Interactions)</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_NAV_011 -> TC_NAV_016</span>
+    </div>
+    <p class="section-desc">
+      Kiểm tra thao tác vuốt lệch bản đồ xuất hiện nút Re-center (Định vị lại xe), chức năng đưa tâm camera về xe, xem tổng quan lộ trình (Overview), phóng to (+) / thu nhỏ (-), thay đổi độ lật 2D/3D & bật/tắt nhanh âm thanh loa.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 105px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 210px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_NAV_011</strong></td>
+            <td>Thao tác trên map</td>
+            <td><strong>Kiểm tra thao tác Vuốt màn hình và hiển thị Nút Re-center</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Dùng tay vuốt (drag/swipe) bản đồ lệch khỏi vị trí xe.</td>
+            <td>- Bản đồ di chuyển theo hướng vuốt.<br>- Nút Re-center (Định vị lại xe) xuất hiện ở góc dưới bên trái màn hình.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Bản đồ lệch • Hiện Nút Re-center</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_011_lech_vi_tri_nut_recenter.webp" data-filename="tc_nav_011_lech_vi_tri_nut_recenter.webp" onerror="handleImgError(this)" alt="Vuốt lệch map" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Cơ chế phát hiện lệch tâm tức thì: Khi bản đồ bị swipe lệch khỏi xe, nút Re-center tròn màu trắng có icon tâm ngắm hiển thị ngay tại tọa độ (85, 1650).</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_011_B</strong></td>
+            <td>Thao tác trên map</td>
+            <td><strong>Kiểm tra chức năng của Nút Re-center</strong></td>
+            <td>Đang lệch tâm bản đồ (Nút Re-center đang hiển thị).</td>
+            <td>1. Nhấn vào nút Re-center.</td>
+            <td>- Bản đồ tự động xoay và di chuyển tâm về đúng vị trí và góc nhìn của xe.<br>- Nút Re-center biến mất.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Bấm Re-center • Trở về tâm xe</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_011_click_recenter.webp" data-filename="tc_nav_011_click_recenter.webp" onerror="handleImgError(this)" alt="Click Recenter" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Animation căn tâm chuẩn xác: Bản đồ bay mượt về vị trí xe, tự động xoay theo hướng di chuyển và nút Re-center ẩn đi ngay lập tức.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_012</strong></td>
+            <td>Thao tác trên map</td>
+            <td><strong>Kiểm tra chức năng Nút Xem toàn bộ lộ trình (Overview)</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Nhấn nút "Xem toàn bộ lộ trình" (Overview) ở thanh dưới.</td>
+            <td>- Bản đồ tự động Zoom out bao quát toàn bộ quãng đường từ điểm xuất phát đến điểm đích.<br>- Hiển thị nút Quay lại góc nhìn dẫn đường.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Overview toàn bộ lộ trình</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_012_xem_tong_quan_overview.webp" data-filename="tc_nav_012_xem_tong_quan_overview.webp" onerror="handleImgError(this)" alt="Overview" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Bao quát toàn cảnh hoàn hảo: Bản đồ thu nhỏ vừa vặn toàn bộ tuyến đường đến đích đến, hiển thị rõ mật độ giao thông trên toàn lộ trình.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_013</strong></td>
+            <td>Thao tác trên map</td>
+            <td><strong>Kiểm tra chức năng Nút Phóng to (+) (Zoom in)</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Nhấn vào nút "+" trên màn hình.</td>
+            <td>- Mức Zoom của bản đồ tăng lên 1 bậc.<br>- Nút Re-center KHÔNG xuất hiện (vẫn giữ tâm xe).</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Phóng to (+) Giữ tâm xe</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_013_zoom_in_cong.webp" data-filename="tc_nav_013_zoom_in_cong.webp" onerror="handleImgError(this)" alt="Zoom in" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Nút (+) tại tọa độ (85, 1780) phóng to mượt mà, tâm bản đồ được khóa chặt theo vị trí xe mà không kích hoạt sai nút Re-center.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_014</strong></td>
+            <td>Thao tác trên map</td>
+            <td><strong>Kiểm tra chức năng Nút Thu nhỏ (-) (Zoom out)</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Nhấn vào nút "-" trên màn hình.</td>
+            <td>- Mức Zoom của bản đồ giảm đi 1 bậc.<br>- Nút Re-center KHÔNG xuất hiện (vẫn giữ tâm xe).</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Thu nhỏ (-) Giữ tâm xe</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_014_zoom_out_tru.webp" data-filename="tc_nav_014_zoom_out_tru.webp" onerror="handleImgError(this)" alt="Zoom out" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Nút (-) tại tọa độ (85, 1930) thu nhỏ đều đặn từng cấp độ zoom, mở rộng góc nhìn xung quanh xe mà không làm lệch tâm dẫn đường.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_015</strong></td>
+            <td>Thao tác trên map</td>
+            <td><strong>Kiểm tra chức năng Đổi độ lật Bản đồ (2D/3D)</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Nhấn vào biểu tượng 2D/3D lần 1.<br>2. Nhấn vào biểu tượng 2D/3D lần 2.</td>
+            <td>- Lần 1: Chuyển sang góc nhìn nghiêng 3D chân thực.<br>- Lần 2: Nhấn lại chuyển ngược lại góc nhìn 2D từ trên xuống.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                <div class="img-box">
+                  <span class="device-label">Góc nhìn nghiêng 3D</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_015_thay_doi_do_lat_3d.webp" data-filename="tc_nav_015_thay_doi_do_lat_3d.webp" onerror="handleImgError(this)" alt="Map 3D" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">Góc nhìn phẳng 2D</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_015_tro_ve_do_lat_2d.webp" data-filename="tc_nav_015_tro_ve_do_lat_2d.webp" onerror="handleImgError(this)" alt="Map 2D" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Đổi góc nghiêng mượt: Camera pitch xoay chuyển linh hoạt giữa 45 độ (3D) và 0 độ (2D thẳng đứng) chỉ sau một chạm.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_016</strong></td>
+            <td>Thao tác trên map</td>
+            <td><strong>Kiểm tra chức năng Bật/Tắt nhanh Nút Loa</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Nhấn vào nút Loa lần 1.<br>2. Nhấn vào nút Loa lần 2.</td>
+            <td>- Lần 1: Nút Loa chuyển sang trạng thái Tắt (Mute có gạch chéo), ngừng phát âm thanh.<br>- Lần 2: Nút Loa chuyển sang trạng thái Bật (Unmute), phát âm thanh bình thường.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                <div class="img-box">
+                  <span class="device-label">Tắt âm (Mute gạch)</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_016_nut_loa_tat_mute.webp" data-filename="tc_nav_016_nut_loa_tat_mute.webp" onerror="handleImgError(this)" alt="Loa Tắt" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">Bật âm (Unmute)</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_016_nut_loa_bat_lai.webp" data-filename="tc_nav_016_nut_loa_bat_lai.webp" onerror="handleImgError(this)" alt="Loa Bật" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Toggle phản hồi nhanh tại (960, 580): Chuyển trạng thái icon tức thì, đồng bộ chính xác với audio stream của thiết bị.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================================== -->
+  <!-- PHẦN 3: KÊNH RADIO VOV GIAO THÔNG -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phần 3: Kênh Radio VOV Giao Thông Trực Tuyến</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_NAV_018 -> TC_NAV_022</span>
+    </div>
+    <p class="section-desc">
+      Kiểm tra tích hợp đài VOV Giao thông trong màn hình dẫn đường: icon nút Radio góc phải, tự động phát kênh Hà Nội mặc định, tạm dừng/phát tiếp, chuyển sang kênh TP.HCM & liên kết đến cổng thông tin vovgiaothong.vn.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 105px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 210px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_NAV_018</strong></td>
+            <td>VOV Giao thông</td>
+            <td><strong>Kiểm tra hiển thị mặc định của Nút VOV Giao thông</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Quan sát góc phải màn hình dưới nút Chat.</td>
+            <td>- Nút VOV Giao thông hiển thị icon đài Radio đặc trưng, sắc nét và dễ nhận diện.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Nút Radio VOV Góc Phải</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_018_hien_thi_vov.webp" data-filename="tc_nav_018_hien_thi_vov.webp" onerror="handleImgError(this)" alt="Nút VOV" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Vị trí nút chuẩn xác tại (960, 870): Icon sóng radio trực quan, nổi bật trên nền bản đồ, dễ thao tác với một tay khi lái xe.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_019</strong></td>
+            <td>VOV Giao thông</td>
+            <td><strong>Kiểm tra chức năng Phát kênh mặc định</strong></td>
+            <td>Chưa bật VOV Giao thông.</td>
+            <td>1. Nhấn vào nút VOV Giao thông.</td>
+            <td>- Mở popup/mini-player VOV Giao thông.<br>- Tự động phát kênh mặc định là "VOV Giao thông Hà Nội".</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Phát VOV Hà Nội Mặc Định</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_019_phat_vov_mac_dinh.webp" data-filename="tc_nav_019_phat_vov_mac_dinh.webp" onerror="handleImgError(this)" alt="VOV Hà Nội" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Popup mở nhanh: Tên kênh hiển thị "VOV Giao thông Hà Nội", nút Play tròn xanh chuyển sang trạng thái đang phát (Pause icon).</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_020</strong></td>
+            <td>VOV Giao thông</td>
+            <td><strong>Kiểm tra chức năng Tạm dừng / Phát tiếp</strong></td>
+            <td>Đang phát kênh VOV Giao thông.</td>
+            <td>1. Nhấn nút Tạm dừng (Pause).<br>2. Nhấn lại nút Phát (Play).</td>
+            <td>- Bước 1: Luồng phát âm thanh VOV dừng lại. Icon đổi thành Play.<br>- Bước 2: Tiếp tục phát âm thanh VOV. Icon đổi thành Pause.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Tạm Dừng / Phát Tiếp VOV</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_020_tam_dung_vov.webp" data-filename="tc_nav_020_tam_dung_vov.webp" onerror="handleImgError(this)" alt="Pause VOV" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Nút điều khiển Play/Pause tròn màu xanh tại (290, 840) chuyển trạng thái tức thì, không bị delay hoặc vỡ âm thanh khi resume.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_021</strong></td>
+            <td>VOV Giao thông</td>
+            <td><strong>Kiểm tra chức năng Chuyển kênh</strong></td>
+            <td>Đang mở popup VOV Giao thông.</td>
+            <td>1. Nhấn vào danh sách chọn kênh (...).<br>2. Chọn kênh "VOV Giao thông TP.HCM".</td>
+            <td>- Luồng phát chuyển sang đài VOV Giao thông TP.HCM.<br>- Tên kênh hiển thị cập nhật đúng.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                <div class="img-box">
+                  <span class="device-label">Menu chọn kênh</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_021_danh_sach_kenh_vov.webp" data-filename="tc_nav_021_danh_sach_kenh_vov.webp" onerror="handleImgError(this)" alt="DS Kênh" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">Kênh TP.HCM</span>
+                  <img class="img-thumb" src="./screenshots/tc_nav_021_chon_kenh_vov_hcm.webp" data-filename="tc_nav_021_chon_kenh_vov_hcm.webp" onerror="handleImgError(this)" alt="Kênh HCM" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Chuyển kênh tức thì: Nhấn nút ba chấm tại (750, 840), chọn đài TP.HCM tại (400, 640), stream radio chuyển đài thành công không gặp lỗi buffer.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_NAV_022</strong></td>
+            <td>VOV Giao thông</td>
+            <td><strong>Kiểm tra liên kết "Nguồn VOV giao thông"</strong></td>
+            <td>Đang mở popup VOV Giao thông.</td>
+            <td>1. Nhấn vào dòng chữ "Nguồn VOV giao thông".</td>
+            <td>- Hệ thống mở trình duyệt web điều hướng đến trang web vovgiaothong.vn.<br>- Có thể trở lại ứng dụng GOFA dẫn đường an toàn.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Trang web vovgiaothong.vn</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_022_nguon_vov_giao_thong.webp" data-filename="tc_nav_022_nguon_vov_giao_thong.webp" onerror="handleImgError(this)" alt="Link Nguồn VOV" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Mở Intent Browser chuẩn: Nhấn link tại (400, 1150) mở đúng URL vovgiaothong.vn, sau đó gọi resume an toàn về app giữ nguyên phiên dẫn đường.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================================== -->
+  <!-- ============================================================================== -->
+  <!-- PHẦN 4: TÙY CHỈNH BẢN ĐỒ (BOTTOM SHEET LAYER TRONG DẪN ĐƯỜNG) -->
+  <!-- ============================================================================== -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phần 4: Tùy Chỉnh Bản Đồ (Bottom Sheet Layer)</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_NAV_026, TC_MAP, TC_DATA, TC_VEH, TC_COLOR</span>
+    </div>
+    <p class="section-desc">
+      Kiểm tra mở bảng Layer Bottom Sheet trong khi đang dẫn đường với 4 Tab chức năng: Tab Bản đồ (2D/3D/Vệ tinh/Giao diện Sáng-Tối-Hệ thống), Tab Dữ liệu (Bật/tắt Giao thông & HD Map), Tab Xe (Chọn mô hình xe 3D Range Rover), và Tab Màu dẫn đường (Chọn màu lộ trình & Lưu).
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 105px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 210px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_NAV_026</strong></td>
+            <td>Tùy chỉnh bản đồ</td>
+            <td><strong>Kiểm tra mở Bottom Sheet Layer trong Dẫn đường</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Nhấn vào nút Layer trên thanh công cụ bên phải (960, 440).</td>
+            <td>- Hệ thống hiển thị Bottom Sheet Layer.<br>- Đầy đủ 4 tab chức năng: Bản đồ, Dữ liệu, Xe, Màu dẫn đường.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Bottom Sheet Layer 4 Tab</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_026_layer_bottom_sheet.webp" data-filename="tc_nav_026_layer_bottom_sheet.webp" onerror="handleImgError(this)" alt="Layer Bottom Sheet" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Bottom sheet trượt lên êm ái, hiển thị rõ ràng 4 tab trên thanh tab bar tại toạ độ y ≈ 1430, sẵn sàng cho các tùy biến trực tiếp.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_MAP_001..004</strong></td>
+            <td>Tùy chỉnh bản đồ</td>
+            <td><strong>Tab Bản đồ: Chế độ 2D/3D/Vệ tinh & Theme Sáng/Tối/Hệ thống</strong></td>
+            <td>Đang mở Tab Bản đồ trong Layer Sheet.</td>
+            <td>1. Lần lượt chọn 2D, Vệ tinh, 3D.<br>2. Thử nghiệm các chủ đề: Sáng, Tối, Theo hệ thống.</td>
+            <td>- Kiểu hiển thị bản đồ thay đổi tương ứng tức thì.<br>- Giao diện theme sáng/tối áp dụng chính xác cho bản đồ và các thành phần HUD.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:4px; justify-content:center;">
+                <img class="img-thumb" src="./screenshots/tc_map_002_chon_2d.webp" data-filename="tc_map_002_chon_2d.webp" onerror="handleImgError(this)" alt="2D" onclick="zoomImage(this.src)" style="max-width:58px;" title="Chế độ 2D">
+                <img class="img-thumb" src="./screenshots/tc_map_002_chon_3d.webp" data-filename="tc_map_002_chon_3d.webp" onerror="handleImgError(this)" alt="3D" onclick="zoomImage(this.src)" style="max-width:58px;" title="Chế độ 3D">
+                <img class="img-thumb" src="./screenshots/tc_map_002_chon_ve_tinh.webp" data-filename="tc_map_002_chon_ve_tinh.webp" onerror="handleImgError(this)" alt="Vệ tinh" onclick="zoomImage(this.src)" style="max-width:58px;" title="Chế độ Vệ tinh">
+                <img class="img-thumb" src="./screenshots/tc_map_003_chu_de_sang.webp" data-filename="tc_map_003_chu_de_sang.webp" onerror="handleImgError(this)" alt="Sáng" onclick="zoomImage(this.src)" style="max-width:58px;" title="Theme Sáng">
+                <img class="img-thumb" src="./screenshots/tc_map_003_chu_de_toi.webp" data-filename="tc_map_003_chu_de_toi.webp" onerror="handleImgError(this)" alt="Tối" onclick="zoomImage(this.src)" style="max-width:58px;" title="Theme Tối">
+                <img class="img-thumb" src="./screenshots/tc_map_004_chu_de_he_thong.webp" data-filename="tc_map_004_chu_de_he_thong.webp" onerror="handleImgError(this)" alt="Hệ thống" onclick="zoomImage(this.src)" style="max-width:58px;" title="Theme Hệ thống">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Render bản đồ tối ưu: Tải tile vệ tinh mượt, chuyển đổi giữa chế độ 2D và 3D không bị khựng, các tùy chọn theme lưu trữ bền vững.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_DATA_001..003</strong></td>
+            <td>Tùy chỉnh bản đồ</td>
+            <td><strong>Tab Dữ liệu: Lớp Giao thông & HD Map</strong></td>
+            <td>Đang mở Tab Dữ liệu trong Layer Sheet.</td>
+            <td>1. Bật/tắt switch "Giao thông".<br>2. Bật/tắt switch "HD Map".</td>
+            <td>- Lớp màu thể hiện mật độ giao thông xanh/cam/đỏ hiển thị hoặc ẩn chính xác.<br>- Chi tiết làn đường HD Map bật/tắt đúng thiết lập của người dùng.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                <div class="img-box">
+                  <span class="device-label">Giao thông Off</span>
+                  <img class="img-thumb" src="./screenshots/tc_data_002_toggle_giao_thong_off.webp" data-filename="tc_data_002_toggle_giao_thong_off.webp" onerror="handleImgError(this)" alt="Giao thông Off" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">HD Map Off</span>
+                  <img class="img-thumb" src="./screenshots/tc_data_003_toggle_hd_map_off.webp" data-filename="tc_data_003_toggle_hd_map_off.webp" onerror="handleImgError(this)" alt="HD Map Off" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Switch toggle nhanh nhạy: Tắt lớp giao thông giúp bản đồ tinh gọn hơn, HD Map thể hiện chi tiết từng vạch kẻ làn đường khi được kích hoạt.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_VEH_001..002</strong></td>
+            <td>Tùy chỉnh bản đồ</td>
+            <td><strong>Tab Xe: Chọn mô hình xe 3D di chuyển</strong></td>
+            <td>Đang mở Tab Xe trong Layer Sheet.</td>
+            <td>1. Chọn mô hình xe Range Rover 3D.<br>2. Quan sát mô hình xe đại diện trên màn hình dẫn đường.</td>
+            <td>- Mô hình xe trên bản đồ lập tức cập nhật sang hình ảnh xe Range Rover 3D sắc nét thay cho mũi tên định vị mặc định.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                <div class="img-box">
+                  <span class="device-label">Mặc định</span>
+                  <img class="img-thumb" src="./screenshots/tc_veh_001_tab_xe_default.webp" data-filename="tc_veh_001_tab_xe_default.webp" onerror="handleImgError(this)" alt="Xe Mặc Định" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">Xe Range Rover 3D</span>
+                  <img class="img-thumb" src="./screenshots/tc_veh_002_doi_loai_xe.webp" data-filename="tc_veh_002_doi_loai_xe.webp" onerror="handleImgError(this)" alt="Xe Range Rover" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Mô hình xe 3D độc quyền: Chi tiết ngoại thất xe Range Rover hiển thị bóng đổ sống động, xoay theo đúng góc di chuyển của phương tiện.</div>
+            </td>
+          </tr>
+
+          <tr>
+            <td><strong>TC_COLOR_001..005</strong></td>
+            <td>Tùy chỉnh bản đồ</td>
+            <td><strong>Tab Màu dẫn đường: Tùy biến màu lộ trình & Lưu</strong></td>
+            <td>Đang mở Tab Màu dẫn đường.</td>
+            <td>1. Chọn màu sắc có sẵn (Màu xanh lá / Xanh dương).<br>2. Di dải màu tùy chỉnh.<br>3. Nhấn nút "Lưu" ở góc dưới bảng điều khiển.</td>
+            <td>- Xem trước (preview) màu sắc tuyến đường thay đổi ngay trên màn hình.<br>- Sau khi bấm Lưu, màu lộ trình dẫn đường chính thức được áp dụng và ghi nhớ cho các chuyến đi tiếp theo.</td>
+            <td style="text-align:center;">
+              <div style="display:flex; flex-wrap:wrap; gap:6px; justify-content:center;">
+                <div class="img-box">
+                  <span class="device-label">Tab Màu mặc định</span>
+                  <img class="img-thumb" src="./screenshots/tc_color_001_tab_mau_default.webp" data-filename="tc_color_001_tab_mau_default.webp" onerror="handleImgError(this)" alt="Tab Màu Mặc Định" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">Chọn Màu Xanh</span>
+                  <img class="img-thumb" src="./screenshots/tc_color_002_chon_mau_xanh_la.webp" data-filename="tc_color_002_chon_mau_xanh_la.webp" onerror="handleImgError(this)" alt="Chọn Màu Xanh Lá" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">Dải màu tùy chỉnh</span>
+                  <img class="img-thumb" src="./screenshots/tc_color_003_di_mau_tuy_chinh.webp" data-filename="tc_color_003_di_mau_tuy_chinh.webp" onerror="handleImgError(this)" alt="Di Dải Màu" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+                <div class="img-box">
+                  <span class="device-label">Lưu Thành Công</span>
+                  <img class="img-thumb" src="./screenshots/tc_color_005_luu_mau_moi.webp" data-filename="tc_color_005_luu_mau_moi.webp" onerror="handleImgError(this)" alt="Lưu Màu Thành Công" onclick="zoomImage(this.src)" style="max-width:85px;">
+                </div>
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Cá nhân hóa trải nghiệm hoàn chỉnh: Giao diện Tab Màu dẫn đường chuẩn thiết kế gồm khung xem trước (Preview) tuyến đường, danh sách màu có sẵn, bảng màu tùy chỉnh và 2 nút Huỷ / Lưu. Lưu màu mới thành công.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ============================================================================== -->
+  <!-- ============================================================================== -->
+  <!-- PHẦN 5: THOÁT DẪN ĐƯỜNG & TRỞ VỀ MÀN HÌNH CHÍNH -->
+  <!-- ============================================================================== -->
+  <!-- ============================================================================== -->
+  <section class="section-card">
+    <div class="section-title">
+      <h3>Phần 5: Thoát Dẫn Đường & Trở Về Màn Hình Chính</h3>
+      <span class="badge-app" style="background:#e0f2fe; color:#0369a1;">TC_NAV_017</span>
+    </div>
+    <p class="section-desc">
+      Kiểm tra thao tác kết thúc lộ trình bằng nút Thoát dẫn đường màu đỏ ở góc dưới bên phải, giải phóng tài nguyên phiên dẫn đường và đưa người dùng an toàn về màn hình chính (Home) với đầy đủ thanh tìm kiếm và bản đồ.
+    </p>
+
+    <div class="table-responsive">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 105px;">TESTCASE ID</th>
+            <th style="width: 105px;">TEST SCENARIO</th>
+            <th style="width: 180px;">TESTCASE</th>
+            <th style="width: 170px;">PRE-CONDITION</th>
+            <th style="width: 210px;">TEST STEPS</th>
+            <th style="width: 240px;">EXPECTED RESULTS</th>
+            <th style="width: 210px; text-align:center;">Hình ảnh bằng chứng thực tế</th>
+            <th style="width: 75px; text-align:center;">Kết quả</th>
+            <th style="width: 250px;">Đánh giá & Chi tiết kiểm thử</th>
+          </tr>
+        </thead>
+        <tbody>
+
+          <tr>
+            <td><strong>TC_NAV_017</strong></td>
+            <td>Thao tác trên map</td>
+            <td><strong>Kiểm tra chức năng Nút Thoát dẫn đường</strong></td>
+            <td>Đang ở màn hình Dẫn đường.</td>
+            <td>1. Nhấn vào nút Thoát (nút màu đỏ) ở góc dưới bên phải màn hình (860, 2150).</td>
+            <td>- Dừng hoàn toàn phiên dẫn đường hiện tại.<br>- Màn hình điều hướng quay trở lại Màn hình chính (Home) an toàn, hiển thị đầy đủ thanh tìm kiếm và xe 3D.</td>
+            <td style="text-align:center;">
+              <div class="img-box">
+                <span class="device-label">Thoát Dẫn Đường • Trở Về Home</span>
+                <img class="img-thumb" src="./screenshots/tc_nav_017_thoat_ve_home.webp" data-filename="tc_nav_017_thoat_ve_home.webp" onerror="handleImgError(this)" alt="Thoát về Home" onclick="zoomImage(this.src)">
+              </div>
+            </td>
+            <td style="text-align:center;"><span class="status-badge status-pass">PASS</span></td>
+            <td>
+              <div class="sync-note">Giải phóng tài nguyên sạch sẽ: Dừng dịch vụ audio định vị ngầm, thanh tìm kiếm "Tìm kiếm ở đây" hiển thị sẵn sàng cho chuyến đi tiếp theo mà không bị đơ hoặc văng app.</div>
+            </td>
+          </tr>
+
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<!-- Modal Zoom -->
+<div id="imageModal" class="modal" onclick="closeModal()">
+  <img id="modalImg" src="" alt="Zoom Image">
+</div>
+
+<script>
+function handleImgError(img) {
+  var orig = img.getAttribute('data-filename') || img.getAttribute('src');
+  var cleanName = orig.replace(/^.*[\\\/]/, '');
+  if (!img.dataset.retryCount) {
+    img.dataset.retryCount = 1;
+    img.src = './screenshots/' + cleanName;
+  } else if (img.dataset.retryCount == 1) {
+    img.dataset.retryCount = 2;
+    img.src = '../output/bffe438f/screenshots/' + cleanName;
+  } else if (img.dataset.retryCount == 2) {
+    img.dataset.retryCount = 3;
+    img.src = '../../output/bffe438f/screenshots/' + cleanName;
+  }
+}
+
+function zoomImage(src) {
+  var modal = document.getElementById("imageModal");
+  var modalImg = document.getElementById("modalImg");
+  modal.style.display = "flex";
+  modalImg.src = src;
+}
+function closeModal() {
+  document.getElementById("imageModal").style.display = "none";
+}
+</script>
+
+</body>
+</html>
