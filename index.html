@@ -115,6 +115,11 @@
     font-weight: 700;
     white-space: nowrap;
   }
+  .plat-ios {
+    background: #f0fdf4;
+    color: #15803d;
+    border: 1px solid #bbf7d0;
+  }
   .plat-mobile {
     background: #f3e8ff;
     color: #7e22ce;
@@ -154,7 +159,11 @@
   <div class="kpi-grid">
     <div class="kpi-card">
       <div class="kpi-title">Tổng số lần chạy</div>
-      <div class="kpi-value">8</div>
+      <div class="kpi-value">9</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">🍏 iOS App Runs</div>
+      <div class="kpi-value" style="color:#16a34a;">1</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-title">📱 Mobile App Runs</div>
@@ -166,19 +175,20 @@
     </div>
     <div class="kpi-card">
       <div class="kpi-title">Tỉ lệ Pass gần nhất</div>
-      <div class="kpi-value" style="color:var(--success);">98.1%</div>
+      <div class="kpi-value" style="color:var(--success);">100.0%</div>
     </div>
     <div class="kpi-card">
       <div class="kpi-title">Lần chạy mới nhất</div>
       <div class="kpi-value" style="font-size:15px; margin-top:10px; color:#475569;">
-        2026-10-14 09:47:43
+        2026-10-15 10:03:05
       </div>
     </div>
   </div>
 
   <div class="filter-bar">
     <span style="font-size:13px; font-weight:700; color:#475569; margin-right:6px;">Bộ lọc:</span>
-    <button class="filter-btn active" onclick="filterRuns('all', event)">🌟 Tất Cả (8)</button>
+    <button class="filter-btn active" onclick="filterRuns('all', event)">🌟 Tất Cả (9)</button>
+    <button class="filter-btn" onclick="filterRuns('ios', event)">🍏 iOS App (1)</button>
     <button class="filter-btn" onclick="filterRuns('mobile', event)">📱 Mobile App (2)</button>
     <button class="filter-btn" onclick="filterRuns('aa', event)">🚗 Android Auto (6)</button>
   </div>
@@ -204,7 +214,31 @@
         </tr>
       </thead>
       <tbody>
-        
+
+        <tr class="row-ios">
+          <td><strong>#9</strong></td>
+          <td style="text-align:center;"><span class="plat-badge plat-ios">🍏 iOS App</span></td>
+          <td>
+            <a href="run_ios_20261015_100305/index.html" class="run-link">
+              📁 <strong>run_ios_20261015_100305</strong>
+            </a>
+            <div style="font-size:12px; color:#64748b; margin-top:3px;">🕒 2026-10-15 10:03:05 • iPhone 13</div>
+          </td>
+          <td style="text-align:center;"><strong>78</strong></td>
+          <td style="text-align:center; color:#16a34a; font-weight:600;">✓ 78</td>
+          <td style="text-align:center; color:#dc2626; font-weight:600;">✗ 0</td>
+          <td style="text-align:center; color:#d97706; font-weight:600;">⚠ 0</td>
+          <td style="text-align:center;">
+            <span class="badge badge-pass">★ 100.0%</span>
+          </td>
+          <td style="text-align:center; font-family:'JetBrains Mono', monospace; font-size:12px;">33m 39s</td>
+          <td style="text-align:center; font-size:12px; color:#64748b;">📷 201 ảnh</td>
+          <td style="text-align:center;">
+            <a href="run_ios_20261015_100305/index.html" class="btn-action">
+              🔍 Mở Báo Cáo &rarr;
+            </a>
+          </td>
+        </tr>
         <tr class="row-aa">
           <td><strong>#8</strong></td>
           <td style="text-align:center;"><span class="plat-badge plat-aa">🚗 Android Auto</span></td>
@@ -421,6 +455,8 @@
     rows.forEach(r => {
       if (type === 'all') {
         r.style.display = '';
+      } else if (type === 'ios') {
+        r.style.display = r.classList.contains('row-ios') ? '' : 'none';
       } else if (type === 'mobile') {
         r.style.display = r.classList.contains('row-mobile') ? '' : 'none';
       } else if (type === 'aa') {
